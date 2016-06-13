@@ -9,6 +9,7 @@ module.exports = function(context) {
 
     //BT commented -> incompatibility error with Meteor/cordova
     // child_process.execSync("npm --prefix " + pluginDir + " install " + pluginDir);
+    child_process.exec("npm --prefix " + pluginDir + " install " + pluginDir);
     var xcode = require("xcode");
 
     // Need a promise so that the install waits for us to complete our project modifications
