@@ -12,6 +12,9 @@
 
     <license>MIT</license>
 
+    <preference name="APP_ID" />
+    <preference name="APP_NAME" />
+
     <hook type="after_plugin_install" src="hooks/after_plugin_install.js" />
 
     <!-- JavaScript Interface -->
@@ -43,10 +46,22 @@
             </feature>
         </config-file>
 
+        <config-file target="*-Info.plist" parent="CFBundleURLTypes">
+          <array>
+            <dict>
+              <key>CFBundleURLSchemes</key>
+              <array>
+                <string>$APP_ID.payments</string>
+              </array>
+            </dict>
+          </array>
+        </config-file>
+
         <config-file target="*-Info.plist" parent="LSApplicationQueriesSchemes">
           <array>
             <string>com.paypal.ppclient.touch.v1</string>
             <string>com.paypal.ppclient.touch.v2</string>
+            <string>com.venmo.touch.v2</string>
           </array>
         </config-file>
 
