@@ -7,7 +7,8 @@ module.exports = function(context) {
     // Temporary hack to run npm install on this plugin's package.json dependencies.
     var pluginDir = path.resolve(__dirname, "../");
 
-    child_process.execSync("npm --prefix " + pluginDir + " install " + pluginDir);
+    //BT commented -> incompatibility error with Meteor/cordova
+    // child_process.execSync("npm --prefix " + pluginDir + " install " + pluginDir);
     var xcode = require("xcode");
 
     // Need a promise so that the install waits for us to complete our project modifications
