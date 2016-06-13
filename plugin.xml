@@ -43,6 +43,14 @@
             </feature>
         </config-file>
 
+        <config-file target="*-Info.plist" parent="LSApplicationQueriesSchemes">
+          <array>
+            <string>com.paypal.ppclient.touch.v1</string>
+            <string>com.paypal.ppclient.touch.v2</string>
+          </array>
+        </config-file>
+
+
         <header-file src="src/ios/BraintreePlugin.h" />
         <source-file src="src/ios/BraintreePlugin.m" />
 
