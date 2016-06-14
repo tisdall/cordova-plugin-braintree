@@ -15,6 +15,7 @@
 #import <BraintreeApplePay/BraintreeApplePay.h>
 #import <Braintree3DSecure/Braintree3DSecure.h>
 #import <BraintreeVenmo/BraintreeVenmo.h>
+#import "AppDelegate.h"
 
 @interface BraintreePlugin() <BTDropInViewControllerDelegate>
 
