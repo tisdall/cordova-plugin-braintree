@@ -286,7 +286,7 @@ NSString *dropInUIcallbackId;
                                           @"phone": payPalAccountNonce.phone,
                                           //@"billingAddress" //TODO
                                           //@"shippingAddress" //TODO
-                                          @"clientMetadataId": payPalAccountNonce.clientMetadataId,
+                                          @"clientMetadataId":  (payPalAccountNonce.clientMetadataId == nil ? [NSNull null] : payPalAccountNonce.clientMetadataId),
                                           @"payerId": payPalAccountNonce.payerId
                                           },
 
