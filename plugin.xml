@@ -12,8 +12,7 @@
 
     <license>MIT</license>
 
-    <preference name="APP_ID" />
-    <preference name="APP_NAME" />
+    <preference name="BUNDLE_ID" />
 
     <hook type="after_plugin_install" src="hooks/after_plugin_install.js" />
 
@@ -51,7 +50,7 @@
             <dict>
               <key>CFBundleURLSchemes</key>
               <array>
-                <string>$APP_ID.payments</string>
+                <string>$BUNDLE_ID.payments</string>
               </array>
             </dict>
           </array>

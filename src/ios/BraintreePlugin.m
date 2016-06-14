@@ -22,6 +22,24 @@
 
 @end
 
+@implementation AppDelegate(BraintreePlugin)
+
+
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+  sourceApplication:(NSString *)sourceApplication
+         annotation:(id)annotation {
+    NSString *bundle_id = [NSBundle mainBundle].bundleIdentifier;
+    bundle_id = [bundle_id stringByAppendingString:@".payments"];
+    
+    if ([url.scheme localizedCaseInsensitiveCompare:bundle_id] == NSOrderedSame) {
+        return [BTAppSwitch handleOpenURL:url sourceApplication:sourceApplication];
+    }
+    return NO;
+}
+
+@end
+
 @implementation BraintreePlugin
 
 NSString *dropInUIcallbackId;
@@ -53,6 +71,11 @@ NSString *dropInUIcallbackId;
         [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
         return;
     }
+
+    NSString *bundle_id = [NSBundle mainBundle].bundleIdentifier;
+    bundle_id = [bundle_id stringByAppendingString:@".payments"];
+
+    [BTAppSwitch setReturnURLScheme:bundle_id];
 
     CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
