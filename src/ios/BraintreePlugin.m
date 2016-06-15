@@ -282,13 +282,13 @@ NSString *dropInUIcallbackId;
                                   // BTPayPalAccountNonce
                                   @"payPalAccount": !payPalAccountNonce ? [NSNull null] : @{
                                           @"email": payPalAccountNonce.email,
-                                          @"firstName": payPalAccountNonce.firstName,
-                                          @"lastName": payPalAccountNonce.lastName,
-                                          @"phone": payPalAccountNonce.phone,
+                                          @"firstName": (payPalAccountNonce.firstName == nil ? [NSNull null] : payPalAccountNonce.firstName),
+                                          @"lastName": (payPalAccountNonce.lastName == nil ? [NSNull null] : payPalAccountNonce.lastName),
+                                          @"phone": (payPalAccountNonce.phone == nil ? [NSNull null] : payPalAccountNonce.phone),
                                           //@"billingAddress" //TODO
                                           //@"shippingAddress" //TODO
                                           @"clientMetadataId":  (payPalAccountNonce.clientMetadataId == nil ? [NSNull null] : payPalAccountNonce.clientMetadataId),
-                                          @"payerId": payPalAccountNonce.payerId
+                                          @"payerId": (payPalAccountNonce.payerId == nil ? [NSNull null] : payPalAccountNonce.payerId),
                                           },
 
                                   // BTApplePayCardNonce
