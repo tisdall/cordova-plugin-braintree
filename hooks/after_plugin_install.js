@@ -9,14 +9,13 @@ module.exports = function(context) {
 
     //BT commented -> incompatibility error with Meteor/cordova
     // child_process.execSync("npm --prefix " + pluginDir + " install " + pluginDir);
-    var Q = context.requireCordovaModule("q");
-    var deferral = new Q.defer();
-
     child_process.exec("npm --prefix " + pluginDir + " install " + pluginDir, function(){
       var xcode = require("xcode");
 
       // Need a promise so that the install waits for us to complete our project modifications
       // before the plugin gets installed.
+      var Q = context.requireCordovaModule("q");
+      var deferral = new Q.defer();
 
       var platforms = context.opts.cordova.platforms;
 
@@ -41,8 +40,6 @@ module.exports = function(context) {
       var projectPath = path.join(projectRoot, "platforms", "ios", cfg.name() + ".xcodeproj", "project.pbxproj");
       var xcodeProject = xcode.project(projectPath);
 
-      console.log("Before BrainTreePlugin parse", projectPath);
-      
       xcodeProject.parse(function(err) {
 
           // If we couldn't parse the project, bail out.
@@ -99,7 +96,7 @@ module.exports = function(context) {
           deferral.resolve();
       });
 
+      return deferral.promise;
     });
-    console.log("waiting for BrainTreePlugin after install");
-    return deferral.promise;
+
 };
