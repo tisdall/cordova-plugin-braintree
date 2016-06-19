@@ -14,8 +14,9 @@
 
     <preference name="BUNDLE_ID" />
 
-    <hook type="after_plugin_install" src="hooks/after_plugin_install.js" />
+    <!-- <hook type="after_plugin_install" src="hooks/after_plugin_install.js" /> -->
     <!-- <hook type="after_build" src="hooks/after_plugin_install.js" /> -->
+    <hook type="after_platform_add" src="hooks/addEmbedded.js" />
     
 
     <!-- JavaScript Interface -->
@@ -70,14 +71,14 @@
         <header-file src="src/ios/BraintreePlugin.h" />
         <source-file src="src/ios/BraintreePlugin.m" />
 
-        <framework src="lib/ios/BraintreeVenmo.framework" custom="true" />
-        <framework src="lib/ios/BraintreeUI.framework" custom="true" />
-        <framework src="lib/ios/BraintreePayPal.framework" custom="true" />
-        <framework src="lib/ios/BraintreeDataCollector.framework" custom="true" />
-        <framework src="lib/ios/BraintreeCore.framework" custom="true" />
-        <framework src="lib/ios/BraintreeCard.framework" custom="true" />
-        <framework src="lib/ios/BraintreeApplePay.framework" custom="true" />
-        <framework src="lib/ios/Braintree3DSecure.framework" custom="true" />
+        <framework src="lib/ios/BraintreeVenmo.framework" custom="true" embed="true" />
+        <framework src="lib/ios/BraintreeUI.framework" custom="true" embed="true" />
+        <framework src="lib/ios/BraintreePayPal.framework" custom="true" embed="true" />
+        <framework src="lib/ios/BraintreeDataCollector.framework" custom="true" embed="true" />
+        <framework src="lib/ios/BraintreeCore.framework" custom="true" embed="true" />
+        <framework src="lib/ios/BraintreeCard.framework" custom="true" embed="true" />
+        <framework src="lib/ios/BraintreeApplePay.framework" custom="true" embed="true" />
+        <framework src="lib/ios/Braintree3DSecure.framework" custom="true" embed="true" />
 
     </platform>
 
