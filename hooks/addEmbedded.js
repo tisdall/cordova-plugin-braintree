@@ -5,11 +5,19 @@ const xcode = require('xcode'),
     path = require('path');
 
 module.exports = function(context) {
-    if(process.length >=5 && process.argv[1].indexOf('cordova') == -1) {
-        if(process.argv[4] != 'ios') {
-            return; // plugin only meant to work for ios platform.
-        }
+    // if(process.length >=5 && process.argv[1].indexOf('cordova') == -1) {
+    //     if(process.argv[4] != 'ios') {
+    //         return; // plugin only meant to work for ios platform.
+    //     }
+    // }
+    var platforms = context.opts.cordova.platforms;
+
+    // We can bail out if the iOS platform isn't present.
+    if (platforms.indexOf("ios") === -1) {
+        deferral.resolve();
+        return deferral.promise;
     }
+
 
     function fromDir(startPath,filter, rec, multiple){
         if (!fs.existsSync(startPath)){

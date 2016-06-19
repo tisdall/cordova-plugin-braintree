@@ -16,7 +16,7 @@
 
     <!-- <hook type="after_plugin_install" src="hooks/after_plugin_install.js" /> -->
     <!-- <hook type="after_build" src="hooks/after_plugin_install.js" /> -->
-    <hook type="after_platform_add" src="hooks/addEmbedded.js" />
+    <hook type="after_plugin_install" src="hooks/addEmbedded.js" />
     
 
     <!-- JavaScript Interface -->
