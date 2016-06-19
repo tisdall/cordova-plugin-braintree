@@ -110,7 +110,7 @@ module.exports = function(context) {
 
     myProj.addBuildPhase(frameworkFilesToEmbed, 'PBXCopyFilesBuildPhase', groupName, myProj.getFirstTarget().uuid, 'frameworks');
 
-    for(var frmFileFullPath of frameworkFilesToEmbed) {
+    for(var frmFileFullPath in frameworkFilesToEmbed) {
         var justFrameworkFile = path.basename(frmFileFullPath);
         var fileRef = getFileRefFromName(myProj, justFrameworkFile);
         var fileId = getFileIdAndRemoveFromFrameworks(myProj, justFrameworkFile);
