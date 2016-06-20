@@ -10,6 +10,8 @@ module.exports = function(context) {
     //         return; // plugin only meant to work for ios platform.
     //     }
     // }
+
+    console.log("addEmbedded", context);
     var platforms = context.opts.cordova.platforms;
 
     // We can bail out if the iOS platform isn't present.
