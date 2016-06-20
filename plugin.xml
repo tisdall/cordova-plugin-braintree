@@ -14,20 +14,7 @@
 
     <preference name="BUNDLE_ID" />
 
-    <!-- <hook type="after_plugin_install" src="hooks/after_plugin_install.js" /> -->
-    <!-- <hook type="after_build" src="hooks/after_build.js" /> -->
-    <!-- <hook type="after_prepare" src="hooks/after_prepare.js" /> -->
-    <!-- <hook type="after_add_platform" src="hooks/addEmbedded.js" /> -->
-    <!-- <hook type="after_prepare" src="hooks/addEmbedded.js" /> -->
-    <!-- <hook type="after_plugin_install" src="hooks/addEmbedded.js" /> -->
-    <!-- <hook type="before_prepare" src="hooks/addEmbedded.js" /> -->
-
-    <!-- <hook type="after_plugin_install" src="hooks/after_prepare.js" /> -->
-    <hook type="before_prepare" src="hooks/after_prepare.js" />
-    <!-- <hook type="after_prepare" src="hooks/after_prepare.js" /> -->
-
-    <!-- <hook type="before_build" src="hooks/after_prepare.js" /> -->
-    <!-- <hook type="after_build" src="hooks/after_prepare.js" /> -->
+    <hook type="before_prepare" src="hooks/before_prepare.js" />
 
     <!-- JavaScript Interface -->
     <js-module src="www/braintree-plugin.js" name="BraintreePlugin">
