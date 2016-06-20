@@ -5,9 +5,6 @@ var child_process = require("child_process");
 module.exports = function(context) {
 
 
-    console.log("after_plugin_install", context);
-    return;
-    
     // Temporary hack to run npm install on this plugin's package.json dependencies.
     var pluginDir = path.resolve(__dirname, "../");
 
