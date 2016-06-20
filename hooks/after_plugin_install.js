@@ -4,7 +4,6 @@ var child_process = require("child_process");
 
 module.exports = function(context) {
 
-    
     // Temporary hack to run npm install on this plugin's package.json dependencies.
     var pluginDir = path.resolve(__dirname, "../");
 
