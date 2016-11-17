@@ -67,6 +67,9 @@
         <header-file src="src/ios/BraintreePlugin.h" />
         <source-file src="src/ios/BraintreePlugin.m" />
 
+        <framework src="lib/ios/PayPalUtils.framework" custom="true" embed="true" />
+        <framework src="lib/ios/PayPalDataCollector.framework" custom="true" embed="true" />
+        <framework src="lib/ios/PayPalOneTouch.framework" custom="true" embed="true" />
         <framework src="lib/ios/BraintreeVenmo.framework" custom="true" embed="true" />
         <framework src="lib/ios/BraintreeUI.framework" custom="true" embed="true" />
         <framework src="lib/ios/BraintreePayPal.framework" custom="true" embed="true" />
