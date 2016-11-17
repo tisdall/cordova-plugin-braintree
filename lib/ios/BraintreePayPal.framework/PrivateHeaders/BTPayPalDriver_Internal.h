@@ -42,8 +42,14 @@ NS_ASSUME_NONNULL_BEGIN
 /// Exposed for testing, the clientMetadataId associated with this request
 @property (nonatomic, strong) NSString *clientMetadataId;
 
+/// Exposed for testing, the intent associated with this request
+@property (nonatomic, strong) BTPayPalRequest *payPalRequest;
+
 /// Exposed for testing, the safariViewController instance used for the paypal flow on iOS >=9
 @property (nonatomic, strong, nullable) SFSafariViewController *safariViewController;
+
+/// Used to test the Future Payments flow by force
+- (void)authorizeAccountWithAdditionalScopes:(NSSet<NSString *> *)additionalScopes forceFuturePaymentFlow:(BOOL)forceFuturePaymentFlow completion:(void (^)(BTPayPalAccountNonce *, NSError *))completionBlock;
 
 @end
 

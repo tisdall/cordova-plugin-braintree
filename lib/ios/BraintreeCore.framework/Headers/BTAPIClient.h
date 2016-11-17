@@ -3,13 +3,20 @@
 #import "BTConfiguration.h"
 #import "BTJSON.h"
 
+@class BTPaymentMethodNonce;
+
 NS_ASSUME_NONNULL_BEGIN
 
 extern NSString *const BTAPIClientErrorDomain;
 
 typedef NS_ENUM(NSInteger, BTAPIClientErrorType) {
     BTAPIClientErrorTypeUnknown = 0,
+
+    /// Configuration fetch failed
     BTAPIClientErrorTypeConfigurationUnavailable,
+
+    /// The authorization provided to the API client is insufficient
+    BTAPIClientErrorTypeNotAuthorized,
 };
 
 /// This class acts as the entry point for accessing the Braintree APIs
@@ -42,6 +49,25 @@ typedef NS_ENUM(NSInteger, BTAPIClientErrorType) {
 /// cached on subsequent calls for better performance.
 - (void)fetchOrReturnRemoteConfiguration:(void (^)(BTConfiguration * _Nullable configuration, NSError * _Nullable error))completionBlock;
 
+/// Fetches a customer's vaulted payment method nonces.
+///
+/// Must be using client token with a customer ID specified.
+///
+/// @param completionBlock Callback that returns an array of payment method nonces.
+/// On success, `paymentMethodNonces` contains the nonces and `error` is `nil`. The default payment method nonce, if one exists, will be first.
+/// On failure, `error` contains the error that occured and `paymentMethodNonces` is `nil`.
+- (void)fetchPaymentMethodNonces:(void(^)(NSArray <BTPaymentMethodNonce *> * _Nullable paymentMethodNonces, NSError * _Nullable error))completion;
+
+/// Fetches a customer's vaulted payment method nonces.
+///
+/// Must be using client token with a customer ID specified.
+///
+/// @param defaultFirst Specifies whether to sorts the fetched payment method nonces
+/// with the default payment method or the most recently used payment method first
+/// @param completionBlock Callback that returns an array of payment method nonces
+- (void)fetchPaymentMethodNonces:(BOOL)defaultFirst
+                      completion:(void(^)(NSArray <BTPaymentMethodNonce *> * _Nullable paymentMethodNonces, NSError * _Nullable error))completion;
+
 /// Perfom an HTTP GET on a URL composed of the configured from environment
 /// and the given path.
 ///
@@ -52,7 +78,7 @@ typedef NS_ENUM(NSInteger, BTAPIClientErrorType) {
 /// HTTP response and `error` will be `nil`; on failure, `body` and `response` will be
 /// `nil` and `error` will contain the error that occurred.
 - (void)GET:(NSString *)path
- parameters:(nullable NSDictionary *)parameters
+ parameters:(nullable NSDictionary <NSString *, NSString *> *)parameters
  completion:(nullable void(^)(BTJSON * _Nullable body, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error))completionBlock;
 
 /// Perfom an HTTP POST on a URL composed of the configured from environment
@@ -69,7 +95,7 @@ typedef NS_ENUM(NSInteger, BTAPIClientErrorType) {
   parameters:(nullable NSDictionary *)parameters
   completion:(nullable void(^)(BTJSON * _Nullable body, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error))completionBlock;
 
-- (instancetype)init __attribute__((unavailable("Use initWithClientKeyOrToken: instead.")));
+- (instancetype)init __attribute__((unavailable("Use initWithAuthorization: instead.")));
 
 @end
 

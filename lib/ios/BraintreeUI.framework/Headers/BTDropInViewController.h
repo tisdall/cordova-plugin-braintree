@@ -8,7 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// A view controller that provides a quick and easy payment experience.
 ///
 /// When initialized with a Braintree client, the Drop In will prompt a user for payment details,
-/// based on your Gatweay configuration. The Drop In payment form supports cards and PayPal. When
+/// based on your Gateway configuration. The Drop In payment form supports cards and PayPal. When
 /// using Drop In, you don't need to worry about which methods are already on file with Braintree;
 /// newly created methods are saved as part of the Drop In flow as needed.
 ///
@@ -33,6 +33,9 @@ NS_ASSUME_NONNULL_BEGIN
 ///
 /// @return A new Drop-in view controller that is ready to be presented.
 - (instancetype)initWithAPIClient:(BTAPIClient *)apiClient;
+
+/// The API Client used for communication with Braintree servers.
+@property (nonatomic, strong) BTAPIClient *apiClient;
 
 /// The BTPaymentRequest that defines the Drop-in experience.
 ///
@@ -62,8 +65,16 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param completionBlock A block that gets called on completion.
 - (void)fetchPaymentMethodsOnCompletion:(void(^)())completionBlock;
 
-/// The API Client used for communication with Braintree servers.
-@property (nonatomic, strong) BTAPIClient *apiClient;
+/// Sets the card number in the card form.
+- (void)setCardNumber:(nullable NSString *)cardNumber;
+
+/// Sets the expiration month and year in the card form.
+///
+/// @note The expiration date uses the Gregorian calendar.
+///
+/// @param expirationMonth The expiration month as a one- or two-digit number.
+/// @param expirationYear The expiration year as a four-digit number.
+- (void)setCardExpirationMonth:(NSInteger)expirationMonth year:(NSInteger)expirationYear;
 
 @end
 
