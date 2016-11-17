@@ -2,19 +2,15 @@
 
 This is a [Cordova](http://cordova.apache.org/) plugin for the [Braintree](https://www.braintreepayments.com/) mobile payment processing SDK.
 
-This version of the plugin uses versions `4.1.3` (iOS) and `2.1.2` (Android) of the Braintree mobile SDK. Documentation for the Braintree SDK can be found [here](https://developers.braintreepayments.com/start/overview).
+This version of the plugin uses versions `4.7.2` (iOS) and `2.3.8` (Android) of the Braintree mobile SDK. Documentation for the Braintree SDK can be found [here](https://developers.braintreepayments.com/start/overview).
 
 **This plugin is still in development.**
 
 # Install
 
-To add the plugin to your Cordova project, simply add the plugin from the npm registry:
+To add the plugin to your Cordova project, install the latest version of the plugin directly from git:
 
-    cordova plugin add cordova-plugin-braintree
-
-Alternatively, you can install the latest version of the plugin directly from git:
-
-    cordova plugin add https://github.com/Justin-Credible/cordova-plugin-braintree
+    cordova plugin add https://github.com/taracque/cordova-plugin-braintree
 
 # Usage
 
