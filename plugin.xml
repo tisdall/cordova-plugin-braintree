@@ -12,8 +12,6 @@
 
     <license>MIT</license>
 
-    <preference name="BUNDLE_ID" />
-
     <hook type="before_prepare" src="hooks/before_prepare.js" />
     <!-- <hook type="after_plugin_install" src="hooks/after_plugin_install.js" /> -->
 
@@ -51,7 +49,7 @@
             <dict>
               <key>CFBundleURLSchemes</key>
               <array>
-                <string>$BUNDLE_ID.payments</string>
+                <string>${PRODUCT_BUNDLE_IDENTIFIER}.payments</string>
               </array>
             </dict>
           </array>
