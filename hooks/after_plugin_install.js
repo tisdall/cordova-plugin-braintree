@@ -53,6 +53,9 @@ module.exports = function(context) {
 
           // Remove all of the frameworks because they were not embeded correctly.
           var frameworkPath = cfg.name() + "/Plugins/cordova-plugin-braintree/";
+          xcodeProject.removeFramework(frameworkPath + "PayPalUtils.framework", {customFramework: true, embed: true, link: true});
+          xcodeProject.removeFramework(frameworkPath + "PayPalDataCollector.framework", {customFramework: true, embed: true, link: true});
+          xcodeProject.removeFramework(frameworkPath + "PayPalOneTouch.framework", {customFramework: true, embed: true, link: true});
           xcodeProject.removeFramework(frameworkPath + "BraintreeVenmo.framework", {customFramework: true, embed: true, link: true});
           xcodeProject.removeFramework(frameworkPath + "BraintreeUI.framework", {customFramework: true, embed: true, link: true});
           xcodeProject.removeFramework(frameworkPath + "BraintreePayPal.framework", {customFramework: true, embed: true, link: true});
@@ -81,6 +84,9 @@ module.exports = function(context) {
           xcodeProject.addBuildProperty("LD_RUNPATH_SEARCH_PATHS", "\"$(inherited) @executable_path/Frameworks\"", "Release");
 
           // Add the frameworks again.  This time they will have the code-sign option set so they get code signed when being deployed to devices.
+          xcodeProject.addFramework(frameworkPath + "PayPalUtils.framework", {customFramework: true, embed: true, link: true});
+          xcodeProject.addFramework(frameworkPath + "PayPalDataCollector.framework", {customFramework: true, embed: true, link: true});
+          xcodeProject.addFramework(frameworkPath + "PayPalOneTouch.framework", {customFramework: true, embed: true, link: true});
           xcodeProject.addFramework(frameworkPath + "BraintreeVenmo.framework", {customFramework: true, embed: true, link: true});
           xcodeProject.addFramework(frameworkPath + "BraintreeUI.framework", {customFramework: true, embed: true, link: true});
           xcodeProject.addFramework(frameworkPath + "BraintreePayPal.framework", {customFramework: true, embed: true, link: true});
