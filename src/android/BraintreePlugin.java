@@ -9,8 +9,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.braintreepayments.api.BraintreePaymentActivity;
-import com.braintreepayments.api.PaymentRequest;
+import com.braintreepayments.api.dropin.DropInRequest;
+import com.braintreepayments.api.dropin.DropInResult;
 import com.braintreepayments.api.models.CardNonce;
 import com.braintreepayments.api.models.PayPalAccountNonce;
 import com.braintreepayments.api.models.PaymentMethodNonce;
@@ -27,7 +27,7 @@ public final class BraintreePlugin extends CordovaPlugin {
     private static final int CUSTOM_REQUEST = 300;
     private static final int PAYPAL_REQUEST = 400;
 
-    private PaymentRequest paymentRequest = null;
+    private DropInRequest dropInRequest = null;
     private CallbackContext dropInUICallbackContext = null;
 
     @Override
@@ -81,9 +81,9 @@ public final class BraintreePlugin extends CordovaPlugin {
             return;
         }
 
-        paymentRequest = new PaymentRequest().clientToken(token);
+        dropInRequest = new DropInRequest().clientToken(token);
 
-        if (paymentRequest == null) {
+        if (dropInRequest == null) {
             callbackContext.error("The Braintree client failed to initialize.");
             return;
         }
@@ -94,7 +94,7 @@ public final class BraintreePlugin extends CordovaPlugin {
     private synchronized void presentDropInPaymentUI(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
         // Ensure the client has been initialized.
-        if (paymentRequest == null) {
+        if (dropInRequest == null) {
             callbackContext.error("The Braintree client must first be initialized via BraintreePlugin.initialize(token)");
             return;
         }
@@ -144,14 +144,14 @@ public final class BraintreePlugin extends CordovaPlugin {
             callbackContext.error("secondaryDescription is required.");
         }
 
-        paymentRequest.actionBarTitle(title);
-        paymentRequest.submitButtonText(ctaText);
-        paymentRequest.amount(amount);
-        paymentRequest.primaryDescription(primaryDescription);
-        paymentRequest.secondaryDescription(secondaryDescription);
+//        dropInRequest.actionBarTitle(title);
+//        dropInRequest.submitButtonText(ctaText);
+        dropInRequest.amount(amount);
+//        dropInRequest.primaryDescription(primaryDescription);
+//        dropInRequest.secondaryDescription(secondaryDescription);
 
         this.cordova.setActivityResultCallback(this);
-        this.cordova.startActivityForResult(this, paymentRequest.getIntent(this.cordova.getActivity()), DROP_IN_REQUEST);
+        this.cordova.startActivityForResult(this, dropInRequest.getIntent(this.cordova.getActivity()), DROP_IN_REQUEST);
 
         dropInUICallbackContext = callbackContext;
     }
@@ -169,7 +169,8 @@ public final class BraintreePlugin extends CordovaPlugin {
             PaymentMethodNonce paymentMethodNonce = null;
 
             if (resultCode == Activity.RESULT_OK) {
-                paymentMethodNonce = intent.getParcelableExtra(BraintreePaymentActivity.EXTRA_PAYMENT_METHOD_NONCE);
+                DropInResult result = intent.getParcelableExtra(DropInResult.EXTRA_DROP_IN_RESULT);
+                paymentMethodNonce = result.getPaymentMethodNonce();
             }
 
             this.handleDropInPaymentUiResult(resultCode, paymentMethodNonce);
