@@ -1,27 +1,10 @@
-
-// http://stackoverflow.com/a/36723619
-
 'use strict';
 
-const fs = require('fs'),
-    path = require('path'),
-    child_process = require("child_process");
+const xcode = require('xcode'),
+    fs = require('fs'),
+    path = require('path');
 
 module.exports = function(context) {
-
-    if (context.opts.plugin.platform !== "ios") {
-        console.log("cordova-plugin-braintree: Skipping modification of XCode project for Braintree SDK for non-iOS platform.");
-        return;
-    }
-
-    console.log("cordova-plugin-braintree: Modifying XCode project for Braintree SDK...");
-
-    // Temporary hack to run npm install on this plugin's package.json dependencies.
-    var pluginDir = path.resolve(__dirname, "../");
-
-    child_process.execSync("npm --prefix " + pluginDir + " install " + pluginDir);
-    var xcode = require("xcode");
-
     if(process.length >=5 && process.argv[1].indexOf('cordova') == -1) {
         if(process.argv[4] != 'ios') {
             return; // plugin only meant to work for ios platform.
@@ -115,7 +98,7 @@ module.exports = function(context) {
     const frameworkFilesToEmbed = fromDir(pluginPathInPlatformIosDir ,'.framework', false, true);
     process.chdir('../../');
 
-    if(!frameworkFilesToEmbed || !frameworkFilesToEmbed.length) return;
+    if(!frameworkFilesToEmbed.length) return;
 
     myProj.addBuildPhase(frameworkFilesToEmbed, 'PBXCopyFilesBuildPhase', groupName, myProj.getFirstTarget().uuid, 'frameworks');
 
