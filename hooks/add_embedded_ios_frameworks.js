@@ -87,11 +87,9 @@ module.exports = function(context) {
     addRunpathSearchBuildProperty(myProj, "Debug");
     addRunpathSearchBuildProperty(myProj, "Release");
 
-    // unquote (remove trailing ")
-    var projectName = myProj.getFirstTarget().firstTarget.name.substr(1);
-    projectName = projectName.substr(0, projectName.length-1); //Removing the char " at beginning and the end.
+    var projectName = myProj.getFirstTarget().firstTarget.name;
 
-    const groupName = 'Embed Frameworks ' + context.opts.plugin.id;
+    const groupName = 'Embed Frameworks';
     const pluginPathInPlatformIosDir = projectName + '/Plugins/' + context.opts.plugin.id;
 
     process.chdir('./platforms/ios');
@@ -100,7 +98,9 @@ module.exports = function(context) {
 
     if(!frameworkFilesToEmbed.length) return;
 
-    myProj.addBuildPhase(frameworkFilesToEmbed, 'PBXCopyFilesBuildPhase', groupName, myProj.getFirstTarget().uuid, 'frameworks');
+    if (!myProj.hash.project.objects['PBXCopyFilesBuildPhase']) {
+	    myProj.addBuildPhase(frameworkFilesToEmbed, 'PBXCopyFilesBuildPhase', groupName, myProj.getFirstTarget().uuid, 'frameworks');
+	}
 
     for(var frmFileFullPath of frameworkFilesToEmbed) {
         var justFrameworkFile = path.basename(frmFileFullPath);
