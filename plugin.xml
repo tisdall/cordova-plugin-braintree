@@ -12,7 +12,7 @@
 
     <license>MIT</license>
 
-    <hook type="before_prepare" src="hooks/add_embedded_ios_frameworks.js.js" />
+    <hook type="before_prepare" src="hooks/add_embedded_ios_frameworks.js" />
 
     <!-- JavaScript Interface -->
     <js-module src="www/braintree-plugin.js" name="BraintreePlugin">
