@@ -5,11 +5,10 @@ const xcode = require('xcode'),
     path = require('path');
 
 module.exports = function(context) {
-    if(process.length >=5 && process.argv[1].indexOf('cordova') == -1) {
-        if(process.argv[4] != 'ios') {
-            return; // plugin only meant to work for ios platform.
-        }
-    }
+	if (context.opts.plugin.platform !== "ios") {
+		console.log("cordova-plugin-braintree: Skipping modification of XCode project for Braintree SDK for non-iOS platform.");
+		return;
+	}
 
     function fromDir(startPath,filter, rec, multiple){
         if (!fs.existsSync(startPath)){
@@ -88,6 +87,9 @@ module.exports = function(context) {
     addRunpathSearchBuildProperty(myProj, "Release");
 
     var projectName = myProj.getFirstTarget().firstTarget.name;
+    if (projectName.charAt(0) == "\"") {
+    	projectName = projectName.slice(1, -1);
+    }
 
     const groupName = 'Embed Frameworks';
     const pluginPathInPlatformIosDir = projectName + '/Plugins/' + context.opts.plugin.id;
