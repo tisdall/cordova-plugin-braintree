@@ -1,5 +1,5 @@
 // Type definitions for cordova-plugin-braintree 0.5.1
-// Project: https://github.com/Justin-Credible/cordova-plugin-braintree
+// Project: https://github.com/taracque/cordova-plugin-braintree
 // Definitions by: Justin Unterreiner <https://github.com/Justin-Credible>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
 
@@ -24,7 +24,35 @@ declare module BraintreePlugin {
          * @param successCallback The success callback for this asynchronous function; receives a result object.
          * @param failureCallback The failure callback for this asynchronous function; receives an error string.
          */
+        setupApplePay(options?: ApplePayOptions, successCallback?: () => void, failureCallback?: (error: string) => void): void;
+
+        /**
+         * Shows Braintree's drop-in payment UI.
+         * 
+         * @param successCallback The success callback for this asynchronous function; receives a result object.
+         * @param failureCallback The failure callback for this asynchronous function; receives an error string.
+         */
         presentDropInPaymentUI(options?: PaymentUIOptions, successCallback?: (result: PaymentUIResult) => void, failureCallback?: (error: string) => void): void;
+    }
+
+    /**
+     * Options for the setupApplePay method.
+     */
+    interface ApplePayOptions {
+        /**
+         * Apple Merchant ID can be obtained from Apple.
+         */
+        merchantId: string;
+        
+        /**
+         * 3 letter currency code ISO 4217
+         */
+        currencyCode: string;
+        
+        /**
+         * 2 letter country code ISO 3166-1
+         */
+        countryCode: string;
     }
 
     /**
