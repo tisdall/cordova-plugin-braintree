@@ -44,29 +44,12 @@ BraintreePlugin.presentDropInPaymentUI = function showDropInUI(options, successC
         options = {};
     }
 
-    if (typeof(options.cancelText) !== "string") {
-        options.cancelText = "Cancel";
-    }
-
-    if (typeof(options.title) !== "string") {
-        options.title = "";
+    if (typeof(options.amount) === "undefined") {
+        options.amount = "0.00";
     };
-
-    if (typeof(options.ctaText) !== "string") {
-        options.ctaText = "Select Payment Method";
-    };
-
-    if (typeof(options.amount) !== "string") {
-        options.amount = "";
-    };
-
-    if (typeof(options.primaryDescription) !== "string") {
-        options.primaryDescription = "";
-    };
-
-    if (typeof(options.secondaryDescription) !== "string") {
-        options.secondaryDescription = "";
-    };
+    if (!isNaN(options.amount * 1)) {
+	    options.amount = (options.amount * 1).toFixed(2)
+	}
 
     var pluginOptions = [
         options.amount,
