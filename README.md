@@ -78,3 +78,24 @@ BraintreePlugin.presentDropInPaymentUI(options, function (result) {
     }
 });
 ```
+
+## Apple Pay (iOS only) ##
+
+To allow ApplePay payment you need to initialize Apple Pay framework before usign the Drop/In Payment UI. Read Braintree docs to setup Merchant account: https://developers.braintreepayments.com/guides/apple-pay/configuration/ios/v4?_ga=1.6058933.767761401.1478959986#apple-pay-certificate-request-and-provisioning
+
+Method Signature:
+`setupApplePay(merchantId, countryCode, currencyCode)`
+
+Paramteres:
+
+* `merchantId` (string): The merchant id generated on Apple Developer portal.
+* `currencyCode` (string): The currency for payment, 3 letter code (ISO 4217)
+* `countryCode` (string): The country code of merchant's residence. (ISO 3166-2)
+
+Example Usage:
+
+```
+BraintreePlugin.setupApplePay('com.braintree.merchant.sandbox.demo-app', 'US', 'USD');
+```
+
+ApplePay shown in Drop-In UI only if `BraintreePlugin.setupApplePay` called before `BraintreePlugin.presentDropInPaymentUI`
