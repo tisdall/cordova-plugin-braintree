@@ -100,8 +100,8 @@ public final class BraintreePlugin extends CordovaPlugin {
         }
 
         // Ensure we have the correct number of arguments.
-        if (args.length() != 6) {
-            callbackContext.error("cancelText, ctaText, title, amount, primaryDescription, and secondaryDescription are required.");
+        if (args.length() < 1) {
+            callbackContext.error("amount is required.");
             return;
         }
 
