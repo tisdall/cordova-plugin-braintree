@@ -12,9 +12,11 @@ To add the plugin to your Cordova project, install the latest version of the plu
 
     cordova plugin add https://github.com/taracque/cordova-plugin-braintree
     
-be sure, that xcode npm module is installed:
-
-    npm ls | grep xcode
+be sure, that xcode and plist npm module is installed:
+```
+    npm install xcode
+    npm install plist
+```
 
 # Usage
 
