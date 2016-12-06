@@ -90,13 +90,13 @@ Paramteres:
 
 * `options` (object): Merchant settings object, with the following keys:
     *   `merchantId` (string): The merchant id generated on Apple Developer portal.
-    *   `currencyCode` (string): The currency for payment, 3 letter code (ISO 4217)
-    *   `countryCode` (string): The country code of merchant's residence. (ISO 3166-2)
+    *   `currency` (string): The currency for payment, 3 letter code (ISO 4217)
+    *   `country` (string): The country code of merchant's residence. (ISO 3166-2)
 
 Example Usage:
 
 ```
-BraintreePlugin.setupApplePay({ merchantId : 'com.braintree.merchant.sandbox.demo-app', countryCode : 'US', currencyCode : 'USD'});
+BraintreePlugin.setupApplePay({ merchantId : 'com.braintree.merchant.sandbox.demo-app', country : 'US', currency : 'USD'});
 ```
 
 ApplePay shown in Drop-In UI only if `BraintreePlugin.setupApplePay` called before `BraintreePlugin.presentDropInPaymentUI`
