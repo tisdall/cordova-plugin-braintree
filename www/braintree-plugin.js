@@ -31,7 +31,7 @@ BraintreePlugin.initialize = function initialize(token, successCallback, failure
     exec(successCallback, failureCallback, PLUGIN_ID, "initialize", [token]);
 };
 
-BraintreePlugin.setupApplePay = function setupApplePay(options, successCallbac, failureCallback) {
+BraintreePlugin.setupApplePay = function setupApplePay(options, successCallback, failureCallback) {
     if (!options) {
         options = {};
     }
