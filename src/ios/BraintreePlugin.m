@@ -133,6 +133,7 @@ NSString *dropInUIcallbackId;
         if (error != nil) {
             NSLog(@"ERROR");
         } else if (result.cancelled) {
+            [self.viewController dismissViewControllerAnimated:YES completion:nil];
             if (dropInUIcallbackId) {
                 
                 NSDictionary *dictionary = @{ @"userCancelled": @YES };
@@ -144,6 +145,7 @@ NSString *dropInUIcallbackId;
                 dropInUIcallbackId = nil;
             }
         } else {
+            [self.viewController dismissViewControllerAnimated:YES completion:nil];
             if (dropInUIcallbackId) {
                 NSDictionary *dictionary = [self getPaymentUINonceResult:result.paymentMethod];
                 
