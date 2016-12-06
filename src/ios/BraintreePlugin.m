@@ -161,59 +161,6 @@ NSString *dropInUIcallbackId;
     [self.viewController presentViewController:dropIn animated:YES completion:nil];
 }
 
-#pragma mark - Event Handlers
-
-- (void)userDidCancelPayment {
-
-    [self.viewController dismissViewControllerAnimated:YES completion:nil];
-
-    if (dropInUIcallbackId) {
-
-        NSDictionary *dictionary = @{ @"userCancelled": @YES };
-
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                                      messageAsDictionary:dictionary];
-
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
-        dropInUIcallbackId = nil;
-    }
-}
-
-#pragma mark - BTDropInViewControllerDelegate Members
-
-- (void)dropInViewController:(BTDropInController *)viewController
-  didSucceedWithTokenization:(BTPaymentMethodNonce *)paymentMethodNonce {
-
-    [self.viewController dismissViewControllerAnimated:YES completion:nil];
-
-    if (dropInUIcallbackId) {
-
-        NSDictionary *dictionary = [self getPaymentUINonceResult:paymentMethodNonce];
-
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                                      messageAsDictionary:dictionary];
-
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
-        dropInUIcallbackId = nil;
-    }
-}
-
-- (void)dropInViewControllerDidCancel:(__unused BTDropInController *)viewController {
-
-    [self.viewController dismissViewControllerAnimated:YES completion:nil];
-
-    if (dropInUIcallbackId) {
-
-        NSDictionary *dictionary = @{ @"userCancelled": @YES };
-
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                                      messageAsDictionary:dictionary];
-
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
-        dropInUIcallbackId = nil;
-    }
-}
-
 #pragma mark - Helpers
 
 /**
