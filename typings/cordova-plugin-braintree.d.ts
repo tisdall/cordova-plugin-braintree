@@ -61,24 +61,6 @@ declare module BraintreePlugin {
     interface PaymentUIOptions {
 
         /**
-         * Text to show on the cancel button.
-         * Defaults to "Cancel".
-         */
-        cancelText?: string;
-
-        /**
-         * Text to show on the title of the drop-in UI.
-         * Defaults to empty string.
-         */
-        title?: string;
-
-        /**
-         * Text to show on the call to action button in the drop-in UI.
-         * Defaults to "Select Payment Method".
-         */
-        ctaText?: string;
-
-        /**
          * The amount of the transaction to show in the drop-in UI on the
          * summary row as well as the call to action button.
          * Defaults to empty string.
@@ -91,13 +73,6 @@ declare module BraintreePlugin {
          * Defaults to empty string.
          */
         primaryDescription?: string;
-
-        /**
-         * The description of the transaction to show in the drop-in UI on the
-         * summary row.
-         * Defaults to empty string.
-         */
-        secondaryDescription?: string;
     }
 
     /**
