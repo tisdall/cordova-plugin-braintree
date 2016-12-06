@@ -118,21 +118,9 @@ public final class BraintreePlugin extends CordovaPlugin {
             callbackContext.error("amount is required.");
         }
         
-        String cancelText = args.getString(1);
+        String primaryDescription = args.getString(1);
 
-        String title = args.getString(2);
-
-        String ctaText = args.getString(3);
-
-        String primaryDescription = args.getString(4);
-
-        String secondaryDescription = args.getString(5);
-
-//        dropInRequest.actionBarTitle(title);
-//        dropInRequest.submitButtonText(ctaText);
         dropInRequest.amount(amount);
-//        dropInRequest.primaryDescription(primaryDescription);
-//        dropInRequest.secondaryDescription(secondaryDescription);
 
         this.cordova.setActivityResultCallback(this);
         this.cordova.startActivityForResult(this, dropInRequest.getIntent(this.cordova.getActivity()), DROP_IN_REQUEST);

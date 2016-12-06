@@ -50,6 +50,7 @@
 
 NSString *dropInUIcallbackId;
 bool applePaySuccess;
+bool applePayInited = NO;
 NSString *applePayMerchantID;
 NSString *currencyCode;
 NSString *countryCode;
@@ -109,6 +110,8 @@ NSString *countryCode;
     applePayMerchantID = [command.arguments objectAtIndex:0];
     currencyCode = [command.arguments objectAtIndex:0];
     countryCode = [command.arguments objectAtIndex:0];
+    
+    applePayInited = YES;
 }
 
 - (void)presentDropInPaymentUI:(CDVInvokedUrlCommand *)command {
@@ -139,15 +142,7 @@ NSString *countryCode;
         return;
     }
     
-    NSString* cancelText = [command.arguments objectAtIndex:1];
-    
-    NSString* title = [command.arguments objectAtIndex:2];
-    
-    NSString* ctaText = [command.arguments objectAtIndex:3];
-    
-    NSString* primaryDescription = [command.arguments objectAtIndex:4];
-    
-    NSString* secondaryDescription = [command.arguments objectAtIndex:5];
+    NSString* primaryDescription = [command.arguments objectAtIndex:1];
     
     // Save off the Cordova callback ID so it can be used in the completion handlers.
     dropInUIcallbackId = command.callbackId;
@@ -155,6 +150,8 @@ NSString *countryCode;
     /* Drop-IN 5.0 */
     BTDropInRequest *paymentRequest = [[BTDropInRequest alloc] init];
     paymentRequest.amount = amount;
+    paymentRequest.applePayDisabled = !applePayInited;
+    
     BTDropInController *dropIn = [[BTDropInController alloc] initWithAuthorization:self.token request:paymentRequest handler:^(BTDropInController * _Nonnull controller, BTDropInResult * _Nullable result, NSError * _Nullable error) {
         [self.viewController dismissViewControllerAnimated:YES completion:nil];
         if (error != nil) {
