@@ -91,6 +91,11 @@ public final class BraintreePlugin extends CordovaPlugin {
         callbackContext.success();
     }
 
+    private synchronized void setupApplePay(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+        // Apple Pay available on iOS only
+        callbackContext.success();
+    }
+
     private synchronized void presentDropInPaymentUI(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
         // Ensure the client has been initialized.

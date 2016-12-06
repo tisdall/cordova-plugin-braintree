@@ -50,7 +50,9 @@
 
 NSString *dropInUIcallbackId;
 bool applePaySuccess;
-
+NSString *applePayMerchantID;
+NSString *currencyCode;
+NSString *countryCode;
 
 #pragma mark - Cordova commands
 
@@ -87,6 +89,26 @@ bool applePaySuccess;
     
     CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+}
+
+- (void)setupApplePay:(CDVInvokedUrlCommand *)command {
+
+    // Ensure the client has been initialized.
+    if (!self.braintreeClient) {
+        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"The Braintree client must first be initialized via BraintreePlugin.initialize(token)"];
+        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        return;
+    }
+
+    if ([command.arguments count] != 3) {
+        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Merchant id, Currency code and Country code are required."];
+        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        return;
+    }
+
+    applePayMerchantID = [command.arguments objectAtIndex:0];
+    currencyCode = [command.arguments objectAtIndex:0];
+    countryCode = [command.arguments objectAtIndex:0];
 }
 
 - (void)presentDropInPaymentUI:(CDVInvokedUrlCommand *)command {
@@ -157,10 +179,10 @@ bool applePaySuccess;
                                                              ];
                     apPaymentRequest.supportedNetworks = @[PKPaymentNetworkVisa, PKPaymentNetworkMasterCard, PKPaymentNetworkAmex, PKPaymentNetworkDiscover];
                     apPaymentRequest.merchantCapabilities = PKMerchantCapability3DS;
-                    apPaymentRequest.currencyCode = @"EUR";
-                    apPaymentRequest.countryCode = @"HU";
+                    apPaymentRequest.currencyCode = currencyCode;
+                    apPaymentRequest.countryCode = countryCode;
                     
-                    apPaymentRequest.merchantIdentifier = @"merchant.com.talkivo.sandbox.eur";
+                    apPaymentRequest.merchantIdentifier = applePayMerchantID;
                     
                     PKPaymentAuthorizationViewController *viewController = [[PKPaymentAuthorizationViewController alloc] initWithPaymentRequest:apPaymentRequest];
                     viewController.delegate = self;

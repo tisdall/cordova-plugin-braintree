@@ -31,6 +31,30 @@ BraintreePlugin.initialize = function initialize(token, successCallback, failure
     exec(successCallback, failureCallback, PLUGIN_ID, "initialize", [token]);
 };
 
+BraintreePlugin.setupApplePay = function setupApplePay(options, successCallbac, failureCallback) {
+    if (!options) {
+        options = {};
+    }
+
+    if (typeof(options.merchantId) !== "string") {
+        failureCallback("Apple Pay Merchant ID must be provided");
+    };
+    if (typeof(options.currency) !== "string") {
+        failureCallback("Apple Pay currency must be provided");
+    };
+    if (typeof(options.country) !== "string") {
+        failureCallback("Apple Pay country must be provided");
+    };
+
+    var pluginOptions = [
+        options.merchantId,
+        options.currency,
+        options.country
+    ];
+
+	exec(successCallback, failureCallback, PLUGIN_ID, "setupApplePay", pluginOptions);
+};
+
 /**
  * Shows Braintree's drop-in payment UI.
  * 
@@ -58,9 +82,9 @@ BraintreePlugin.presentDropInPaymentUI = function showDropInUI(options, successC
         options.ctaText,
         options.primaryDescription,
         options.secondaryDescription
-    ];
+	];
 
-    exec(successCallback, failureCallback, PLUGIN_ID, "presentDropInPaymentUI", pluginOptions);
+	exec(successCallback, failureCallback, PLUGIN_ID, "presentDropInPaymentUI", pluginOptions);
 };
 
 module.exports = BraintreePlugin;
