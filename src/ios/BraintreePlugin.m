@@ -93,20 +93,20 @@ NSString *countryCode;
 }
 
 - (void)setupApplePay:(CDVInvokedUrlCommand *)command {
-
+    
     // Ensure the client has been initialized.
     if (!self.braintreeClient) {
         CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"The Braintree client must first be initialized via BraintreePlugin.initialize(token)"];
         [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
         return;
     }
-
+    
     if ([command.arguments count] != 3) {
         CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Merchant id, Currency code and Country code are required."];
         [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
         return;
     }
-
+    
     applePayMerchantID = [command.arguments objectAtIndex:0];
     currencyCode = [command.arguments objectAtIndex:1];
     countryCode = [command.arguments objectAtIndex:2];
@@ -246,7 +246,7 @@ NSString *countryCode;
     if (!applePaySuccess) {
         NSDictionary *dictionary = @{ @"userCancelled": @YES };
         
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK  messageAsString:@"ApplePay canceled"];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK  messageAsDictionary:dictionary];
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
         dropInUIcallbackId = nil;
