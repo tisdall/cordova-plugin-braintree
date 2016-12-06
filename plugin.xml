@@ -85,6 +85,7 @@
         <framework src="lib/ios/BraintreeVenmo.framework" custom="true" embed="true" />
         <framework src="lib/ios/BraintreeUnionPay.framework" custom="true" embed="true" />
         <framework src="lib/ios/BraintreeUIKit.framework" custom="true" embed="true" />
+        <framework src="lib/ios/BraintreeDropIn.framework" custom="true" embed="true" />
         <framework src="lib/ios/BraintreePayPal.framework" custom="true" embed="true" />
         <framework src="lib/ios/BraintreeDataCollector.framework" custom="true" embed="true" />
         <framework src="lib/ios/BraintreeCore.framework" custom="true" embed="true" />
