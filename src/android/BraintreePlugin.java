@@ -107,42 +107,21 @@ public final class BraintreePlugin extends CordovaPlugin {
 
         // Obtain the arguments.
 
-        String cancelText = args.getString(0);
-
-        if (cancelText == null) {
-            callbackContext.error("cancelText is required.");
-            return;
-        }
-
-        String title = args.getString(1);
-
-        if (title == null) {
-            callbackContext.error("title is required.");
-        }
-
-        String ctaText = args.getString(2);
-
-        if (ctaText == null) {
-            callbackContext.error("ctaText is required.");
-        }
-
-        String amount = args.getString(3);
-
+        String amount = args.getString(0);
+        
         if (amount == null) {
             callbackContext.error("amount is required.");
         }
+        
+        String cancelText = args.getString(1);
+
+        String title = args.getString(2);
+
+        String ctaText = args.getString(3);
 
         String primaryDescription = args.getString(4);
 
-        if (primaryDescription == null) {
-            callbackContext.error("primaryDescription is required.");
-        }
-
         String secondaryDescription = args.getString(5);
-
-        if (secondaryDescription == null) {
-            callbackContext.error("secondaryDescription is required.");
-        }
 
 //        dropInRequest.actionBarTitle(title);
 //        dropInRequest.submitButtonText(ctaText);

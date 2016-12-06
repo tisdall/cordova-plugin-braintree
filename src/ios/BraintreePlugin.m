@@ -6,8 +6,8 @@
 
 #import "BraintreePlugin.h"
 #import <objc/runtime.h>
-#import <BraintreeUI/BTPaymentRequest.h>
-#import <BraintreeUI/BTDropInViewController.h>
+#import <BraintreeDropIn/BraintreeDropIn.h>
+#import <BraintreeDropIn/BTDropInController.h>
 #import <BraintreeCore/BTAPIClient.h>
 #import <BraintreeCore/BTPaymentMethodNonce.h>
 #import <BraintreeCard/BTCardNonce.h>
@@ -17,9 +17,10 @@
 #import <BraintreeVenmo/BraintreeVenmo.h>
 #import "AppDelegate.h"
 
-@interface BraintreePlugin() <BTDropInViewControllerDelegate>
+@interface BraintreePlugin()
 
 @property (nonatomic, strong) BTAPIClient *braintreeClient;
+@property NSString* token;
 
 @end
 
@@ -61,15 +62,15 @@ NSString *dropInUIcallbackId;
     }
 
     // Obtain the arguments.
-    NSString* token = [command.arguments objectAtIndex:0];
+    self.token = [command.arguments objectAtIndex:0];
 
-    if (!token) {
+    if (!self.token) {
         CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"A token is required."];
         [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
         return;
     }
 
-    self.braintreeClient = [[BTAPIClient alloc] initWithAuthorization:token];
+    self.braintreeClient = [[BTAPIClient alloc] initWithAuthorization:self.token];
 
     if (!self.braintreeClient) {
         CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"The Braintree client failed to initialize."];
@@ -104,31 +105,7 @@ NSString *dropInUIcallbackId;
 
     // Obtain the arguments.
 
-    NSString* cancelText = [command.arguments objectAtIndex:0];
-
-    if (!cancelText) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"cancelText is required."];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
-        return;
-    }
-
-    NSString* title = [command.arguments objectAtIndex:1];
-
-    if (!title) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"title is required."];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
-        return;
-    }
-
-    NSString* ctaText = [command.arguments objectAtIndex:2];
-    
-    if (!ctaText) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"ctaText is required."];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
-        return;
-    }
-
-    NSString* amount = [command.arguments objectAtIndex:3];
+    NSString* amount = [command.arguments objectAtIndex:0];
     
     if (!amount) {
         CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"amount is required."];
@@ -136,51 +113,50 @@ NSString *dropInUIcallbackId;
         return;
     }
 
+    NSString* cancelText = [command.arguments objectAtIndex:1];
+
+    NSString* title = [command.arguments objectAtIndex:2];
+
+    NSString* ctaText = [command.arguments objectAtIndex:3];
+    
     NSString* primaryDescription = [command.arguments objectAtIndex:4];
     
-    if (!primaryDescription) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"primaryDescription is required."];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
-        return;
-    }
-
     NSString* secondaryDescription = [command.arguments objectAtIndex:5];
-    
-    if (!secondaryDescription) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"secondaryDescription is required."];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
-        return;
-    }
     
     // Save off the Cordova callback ID so it can be used in the completion handlers.
     dropInUIcallbackId = command.callbackId;
 
-    // Create a BTDropInViewController
-    BTDropInViewController *dropInViewController = [[BTDropInViewController alloc]
-                                                    initWithAPIClient:self.braintreeClient];
-    dropInViewController.delegate = self;
+    /* Drop-IN 5.0 */
+    BTDropInRequest *paymentRequest = [[BTDropInRequest alloc] init];
+    paymentRequest.amount = amount;
+    BTDropInController *dropIn = [[BTDropInController alloc] initWithAuthorization:self.token request:paymentRequest handler:^(BTDropInController * _Nonnull controller, BTDropInResult * _Nullable result, NSError * _Nullable error) {
+        if (error != nil) {
+            NSLog(@"ERROR");
+        } else if (result.cancelled) {
+            if (dropInUIcallbackId) {
+                
+                NSDictionary *dictionary = @{ @"userCancelled": @YES };
+                
+                CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                                                              messageAsDictionary:dictionary];
+                
+                [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
+                dropInUIcallbackId = nil;
+            }
+        } else {
+            if (dropInUIcallbackId) {
+                NSDictionary *dictionary = [self getPaymentUINonceResult:result.paymentMethod];
+                
+                CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                                                              messageAsDictionary:dictionary];
+                
+                [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
+                dropInUIcallbackId = nil;
+            }
+        }
+    }];
 
-    // Setup the cancel button.
-
-    UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc]
-                                     initWithTitle:cancelText
-                                     style:UIBarButtonItemStylePlain
-                                     target:self
-                                     action:@selector(userDidCancelPayment)];
-
-    dropInViewController.navigationItem.leftBarButtonItem = cancelButton;
-    dropInViewController.paymentRequest.callToActionText = ctaText;
-    dropInViewController.paymentRequest.displayAmount = [amount isEqualToString:@""] ? nil :  amount;
-    dropInViewController.paymentRequest.summaryTitle = [primaryDescription isEqualToString:@""] ? nil : primaryDescription;
-    dropInViewController.paymentRequest.summaryDescription = [secondaryDescription isEqualToString:@""] ? nil : secondaryDescription;
-    
-    // Setup the dialog's title.
-    dropInViewController.title = title;
-
-    UINavigationController *navigationController = [[UINavigationController alloc]
-                                                    initWithRootViewController:dropInViewController];
-
-    [self.viewController presentViewController:navigationController animated:YES completion:nil];
+    [self.viewController presentViewController:dropIn animated:YES completion:nil];
 }
 
 #pragma mark - Event Handlers
@@ -203,7 +179,7 @@ NSString *dropInUIcallbackId;
 
 #pragma mark - BTDropInViewControllerDelegate Members
 
-- (void)dropInViewController:(BTDropInViewController *)viewController
+- (void)dropInViewController:(BTDropInController *)viewController
   didSucceedWithTokenization:(BTPaymentMethodNonce *)paymentMethodNonce {
 
     [self.viewController dismissViewControllerAnimated:YES completion:nil];
@@ -220,7 +196,7 @@ NSString *dropInUIcallbackId;
     }
 }
 
-- (void)dropInViewControllerDidCancel:(__unused BTDropInViewController *)viewController {
+- (void)dropInViewControllerDidCancel:(__unused BTDropInController *)viewController {
 
     [self.viewController dismissViewControllerAnimated:YES completion:nil];
 

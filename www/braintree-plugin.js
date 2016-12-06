@@ -69,10 +69,10 @@ BraintreePlugin.presentDropInPaymentUI = function showDropInUI(options, successC
     };
 
     var pluginOptions = [
+        options.amount,
         options.cancelText,
         options.title,
         options.ctaText,
-        options.amount,
         options.primaryDescription,
         options.secondaryDescription
     ];
