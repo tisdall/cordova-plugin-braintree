@@ -83,7 +83,8 @@
         <framework src="lib/ios/PayPalDataCollector.framework" custom="true" embed="true" />
         <framework src="lib/ios/PayPalOneTouch.framework" custom="true" embed="true" />
         <framework src="lib/ios/BraintreeVenmo.framework" custom="true" embed="true" />
-        <framework src="lib/ios/BraintreeUI.framework" custom="true" embed="true" />
+        <framework src="lib/ios/BraintreeUnionPay.framework" custom="true" embed="true" />
+        <framework src="lib/ios/BraintreeUIKit.framework" custom="true" embed="true" />
         <framework src="lib/ios/BraintreePayPal.framework" custom="true" embed="true" />
         <framework src="lib/ios/BraintreeDataCollector.framework" custom="true" embed="true" />
         <framework src="lib/ios/BraintreeCore.framework" custom="true" embed="true" />
