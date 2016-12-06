@@ -108,8 +108,8 @@ NSString *countryCode;
     }
 
     applePayMerchantID = [command.arguments objectAtIndex:0];
-    currencyCode = [command.arguments objectAtIndex:0];
-    countryCode = [command.arguments objectAtIndex:0];
+    currencyCode = [command.arguments objectAtIndex:1];
+    countryCode = [command.arguments objectAtIndex:2];
     
     applePayInited = YES;
 }
