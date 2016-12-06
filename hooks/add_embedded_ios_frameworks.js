@@ -5,10 +5,10 @@ const xcode = require('xcode'),
     path = require('path');
 
 module.exports = function(context) {
-	if (context.opts.plugin.platform !== "ios") {
-		console.log("cordova-plugin-braintree: Skipping modification of XCode project for Braintree SDK for non-iOS platform.");
-		return;
-	}
+    if (context.opts.platforms.indexOf('ios') < 0) {
+        console.log("cordova-plugin-braintree: Skipping modification of XCode project for Braintree SDK for non-iOS platform.");
+	return;
+    }
 
     function fromDir(startPath,filter, rec, multiple){
         if (!fs.existsSync(startPath)){
