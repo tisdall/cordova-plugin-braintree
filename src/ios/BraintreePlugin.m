@@ -17,7 +17,7 @@
 #import <BraintreeVenmo/BraintreeVenmo.h>
 #import "AppDelegate.h"
 
-@interface BraintreePlugin() <PKPaymentAuthorizationViewControllerDelegate>
+@interface BraintreePlugin() <BTViewControllerPresentingDelegate, PKPaymentAuthorizationViewControllerDelegate>
 
 @property (nonatomic, strong) BTAPIClient *braintreeClient;
 @property NSString* token;
@@ -114,6 +114,18 @@ NSString *countryCode;
     applePayInited = YES;
 }
 
+- (void)userCancelled {
+    NSDictionary *dictionary = @{ @"userCancelled": @YES };
+    
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                                                  messageAsDictionary:dictionary];
+    
+    [self.viewController dismissViewControllerAnimated:YES completion:nil];
+    
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
+    dropInUIcallbackId = nil;
+}
+
 - (void)presentDropInPaymentUI:(CDVInvokedUrlCommand *)command {
     
     // Ensure the client has been initialized.
@@ -149,27 +161,24 @@ NSString *countryCode;
     
     /* Drop-IN 5.0 */
     BTDropInRequest *paymentRequest = [[BTDropInRequest alloc] init];
-    paymentRequest.amount = amount;
+    // 3DSecure fix
+    //paymentRequest.amount = amount;
     paymentRequest.applePayDisabled = !applePayInited;
     
     BTDropInController *dropIn = [[BTDropInController alloc] initWithAuthorization:self.token request:paymentRequest handler:^(BTDropInController * _Nonnull controller, BTDropInResult * _Nullable result, NSError * _Nullable error) {
-        [self.viewController dismissViewControllerAnimated:YES completion:nil];
+        
         if (error != nil) {
+            // TODO handle this
             NSLog(@"ERROR");
         } else if (result.cancelled) {
             if (dropInUIcallbackId) {
-                
-                NSDictionary *dictionary = @{ @"userCancelled": @YES };
-                
-                CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                                              messageAsDictionary:dictionary];
-                
-                [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
-                dropInUIcallbackId = nil;
+                [self userCancelled];
             }
         } else {
             if (dropInUIcallbackId) {
-                if (result.paymentOptionType == BTUIKPaymentOptionTypeApplePay ) {
+                [self.viewController dismissViewControllerAnimated:YES completion:nil];
+                
+                if (result.paymentOptionType == BTUIKPaymentOptionTypeApplePay ) { // ApplePay
                     PKPaymentRequest *apPaymentRequest = [[PKPaymentRequest alloc] init];
                     apPaymentRequest.paymentSummaryItems = @[
                                                              [PKPaymentSummaryItem summaryItemWithLabel:primaryDescription amount:[NSDecimalNumber decimalNumberWithString: amount]]
@@ -186,18 +195,48 @@ NSString *countryCode;
                     
                     applePaySuccess = NO;
                     
-                    /* display ApplePay ont the rootViewController */
+                    /* display ApplePay on the rootViewController */
                     UIViewController *rootViewController = [[[UIApplication sharedApplication] keyWindow] rootViewController];
                     
                     [rootViewController presentViewController:viewController animated:YES completion:nil];
+                }
+                else if (result.paymentOptionType == BTUIKPaymentOptionTypePayPal) { // PayPal
+                    NSLog(@"%@", result.paymentMethod.nonce);
                     
-                } else {
-                    NSDictionary *dictionary = [self getPaymentUINonceResult:result.paymentMethod];
+                    // TODO Fix returned data
+                    NSDictionary *dictionary = @{@"nonce" : result.paymentMethod.nonce};
                     
                     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:dictionary];
                     
                     [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
                     dropInUIcallbackId = nil;
+                }
+                else { // Credit card
+                    BTThreeDSecureDriver *threeDSecureDriver = [[BTThreeDSecureDriver alloc] initWithAPIClient:self.braintreeClient delegate:self];
+                    
+                    [threeDSecureDriver verifyCardWithNonce:result.paymentMethod.nonce
+                                                     amount:[NSDecimalNumber decimalNumberWithString:amount]
+                                                 completion:^(BTThreeDSecureCardNonce *card, NSError *error) {
+                                                     // TODO check user cancelled VS other errors
+                                                     if (error || !card) {
+                                                         NSLog(@"error: %@",error);
+                                                         [self userCancelled];
+                                                     } else {
+                                                         NSLog(@"3D Secure Card nonce: %@",card.nonce);
+                                                         NSLog(@"Is liability shifted? %d", card.liabilityShifted);
+                                                         NSLog(@"Is liability shift possible? %d", card.liabilityShiftPossible);
+                                                         NSLog(@"%@", card.nonce);
+                                                         
+                                                         // TODO Fix returned data
+                                                         //NSDictionary *dictionary = [self getPaymentUINonceResult:result.paymentMethod];
+                                                         NSDictionary *dictionary = @{@"nonce" : card.nonce};
+                                                         
+                                                         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:dictionary];
+                                                         
+                                                         [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
+                                                         dropInUIcallbackId = nil;
+                                                     }
+                                                 }];
                 }
             }
         }
@@ -253,6 +292,15 @@ NSString *countryCode;
     }
 }
 
+
+// 3DSecure fix
+- (void)paymentDriver:(id)driver requestsPresentationOfViewController:(UIViewController *)viewController {
+    [self.viewController presentViewController:viewController animated:YES completion:nil];
+}
+
+- (void)paymentDriver:(id)driver requestsDismissalOfViewController:(UIViewController *)viewController {
+    [self.viewController dismissViewControllerAnimated:YES completion:nil];
+}
 
 #pragma mark - Helpers
 /**
