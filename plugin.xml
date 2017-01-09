@@ -33,7 +33,6 @@
         <framework src="src/android/build-extras.gradle" custom="true" type="gradleReference" />
 
         <config-file target="AndroidManifest.xml" parent="application">
-			<meta-data android:name="com.google.android.gms.wallet.api.enabled" android:value="true"/>
 			<activity android:name="com.braintreepayments.api.BraintreeBrowserSwitchActivity" android:launchMode="singleTask">
 				<intent-filter>
 					<action android:name="android.intent.action.VIEW" />
