@@ -2,6 +2,7 @@ package net.justincredible;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.util.Log;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
@@ -26,19 +27,21 @@ public final class BraintreePlugin extends CordovaPlugin {
     private static final int PAYMENT_BUTTON_REQUEST = 200;
     private static final int CUSTOM_REQUEST = 300;
     private static final int PAYPAL_REQUEST = 400;
+    private static final int THREEDSECURE_REQUEST = 500;
 
-    private DropInRequest dropInRequest = null;
     private CallbackContext dropInUICallbackContext = null;
+    private DropInRequest dropInRequest = null;
+
+    private String token;
+    private String amount;
 
     @Override
     public synchronized boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-
         if (action == null) {
             return false;
         }
 
         if (action.equals("initialize")) {
-
             try {
                 this.initialize(args, callbackContext);
             }
@@ -49,7 +52,6 @@ public final class BraintreePlugin extends CordovaPlugin {
             return true;
         }
         else if (action.equals("presentDropInPaymentUI")) {
-
             try {
                 this.presentDropInPaymentUI(args, callbackContext);
             }
@@ -60,67 +62,57 @@ public final class BraintreePlugin extends CordovaPlugin {
             return true;
         }
         else {
-            // The given action was not handled above.
+            // The given action was not handled above
             return false;
         }
     }
 
     private synchronized void initialize(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-
-        // Ensure we have the correct number of arguments.
+        // Ensure we have the correct number of arguments
         if (args.length() != 1) {
-            callbackContext.error("A token is required.");
+            callbackContext.error("A token is required");
             return;
         }
 
-        // Obtain the arguments.
-        String token = args.getString(0);
+        // Obtain the arguments
+        token = args.getString(0);
 
         if (token == null || token.equals("")) {
-            callbackContext.error("A token is required.");
+            callbackContext.error("A token is required");
             return;
         }
 
         dropInRequest = new DropInRequest().clientToken(token);
 
         if (dropInRequest == null) {
-            callbackContext.error("The Braintree client failed to initialize.");
+            callbackContext.error("The Braintree client failed to initialize");
             return;
         }
 
         callbackContext.success();
     }
 
-    private synchronized void setupApplePay(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-        // Apple Pay available on iOS only
-        callbackContext.success();
-    }
-
     private synchronized void presentDropInPaymentUI(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-
-        // Ensure the client has been initialized.
+        // Ensure the client has been initialized
         if (dropInRequest == null) {
             callbackContext.error("The Braintree client must first be initialized via BraintreePlugin.initialize(token)");
             return;
         }
 
-        // Ensure we have the correct number of arguments.
+        // Ensure we have the correct number of arguments
         if (args.length() < 1) {
-            callbackContext.error("amount is required.");
+            callbackContext.error("amount is required");
             return;
         }
 
         // Obtain the arguments.
+        this.amount = args.getString(0);
 
-        String amount = args.getString(0);
-        
-        if (amount == null) {
-            callbackContext.error("amount is required.");
+        if (this.amount == null) {
+            callbackContext.error("amount is required");
         }
-        
-        String primaryDescription = args.getString(1);
 
-        dropInRequest.amount(amount);
+        dropInRequest.amount(this.amount);
 
         this.cordova.setActivityResultCallback(this);
         this.cordova.startActivityForResult(this, dropInRequest.getIntent(this.cordova.getActivity()), DROP_IN_REQUEST);
@@ -137,7 +129,6 @@ public final class BraintreePlugin extends CordovaPlugin {
         }
 
         if (requestCode == DROP_IN_REQUEST) {
-
             PaymentMethodNonce paymentMethodNonce = null;
 
             if (resultCode == Activity.RESULT_OK) {
@@ -159,6 +150,30 @@ public final class BraintreePlugin extends CordovaPlugin {
             dropInUICallbackContext.error("Activity result handler for PAYPAL_REQUEST not implemented.");
             //TODO
         }
+        else if (requestCode == THREEDSECURE_REQUEST) {
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+
+            if (resultCode == Activity.RESULT_OK) {
+                Log.d("BRAINTREE", "3DSecure result OK");
+
+                String threeDSecureNonce = intent.getExtras().getString("threeDSecureNonce");
+                boolean liabilityShifted = intent.getExtras().getBoolean("liabilityShifted");
+                boolean liabilityShiftPossible = intent.getExtras().getBoolean("liabilityShiftPossible");
+
+                resultMap.put("nonce", threeDSecureNonce);
+                resultMap.put("liabilityShifted", liabilityShifted);
+                resultMap.put("liabilityShiftPossible", liabilityShiftPossible);
+            } else if (intent.getExtras().getString("error") != null) {
+                Log.d("BRAINTREE", "3DSecure error");
+                resultMap.put("threeDSecureError", true);
+            } else {
+                Log.d("BRAINTREE", "3DSecure error or user cancelled");
+                resultMap.put("userCancelled", true);
+            }
+
+            dropInUICallbackContext.success(new JSONObject(resultMap));
+            dropInUICallbackContext = null;
+        }
     }
 
     /**
@@ -168,7 +183,6 @@ public final class BraintreePlugin extends CordovaPlugin {
      * @param paymentMethodNonce Contains information about a successful payment.
      */
     private void handleDropInPaymentUiResult(int resultCode, PaymentMethodNonce paymentMethodNonce) {
-
         if (dropInUICallbackContext == null) {
             return;
         }
@@ -187,9 +201,12 @@ public final class BraintreePlugin extends CordovaPlugin {
             return;
         }
 
-        Map<String, Object> resultMap = this.getPaymentUINonceResult(paymentMethodNonce);
-        dropInUICallbackContext.success(new JSONObject(resultMap));
-        dropInUICallbackContext = null;
+        Intent intent = new Intent("net.justincredible.ThreeDSecureVerification");
+        intent.putExtra("amount", this.amount);
+        intent.putExtra("token", this.token);
+        intent.putExtra("paymentNonce", paymentMethodNonce.getNonce());
+
+        this.cordova.startActivityForResult(this, intent, THREEDSECURE_REQUEST);
     }
 
     /**
