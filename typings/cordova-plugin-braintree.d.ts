@@ -9,9 +9,9 @@ declare module BraintreePlugin {
 
         /**
          * Used to initialize the Braintree client.
-         * 
+         *
          * The client must be initialized before other methods can be used.
-         * 
+         *
          * @param token The client token or tokenization key to use with the Braintree client.
          * @param successCallback The success callback for this asynchronous function.
          * @param failureCallback The failure callback for this asynchronous function; receives an error string.
@@ -20,7 +20,7 @@ declare module BraintreePlugin {
 
         /**
          * Shows Braintree's drop-in payment UI.
-         * 
+         *
          * @param successCallback The success callback for this asynchronous function; receives a result object.
          * @param failureCallback The failure callback for this asynchronous function; receives an error string.
          */
@@ -28,7 +28,7 @@ declare module BraintreePlugin {
 
         /**
          * Shows Braintree's drop-in payment UI.
-         * 
+         *
          * @param successCallback The success callback for this asynchronous function; receives a result object.
          * @param failureCallback The failure callback for this asynchronous function; receives an error string.
          */
@@ -43,12 +43,12 @@ declare module BraintreePlugin {
          * Apple Merchant ID can be obtained from Apple.
          */
         merchantId: string;
-        
+
         /**
          * 3 letter currency code ISO 4217
          */
         currencyCode: string;
-        
+
         /**
          * 2 letter country code ISO 3166-1
          */
@@ -68,11 +68,10 @@ declare module BraintreePlugin {
         amount?: string;
 
         /**
-         * The description of the transaction to show in the drop-in UI on the
-         * summary row.
-         * Defaults to empty string.
+         * Enable the ThreeDSecure verification.
+         * Defaults to false.
          */
-        primaryDescription?: string;
+        enableThreeDSecureVerification?: boolean;
     }
 
     /**
@@ -113,9 +112,9 @@ declare module BraintreePlugin {
 
             /**
              * An enumerated value used to indicate the type of credit card used.
-             * 
+             *
              * Can be one of the following values:
-             * 
+             *
              * BTCardNetworkUnknown
              * BTCardNetworkAMEX
              * BTCardNetworkDinersClub

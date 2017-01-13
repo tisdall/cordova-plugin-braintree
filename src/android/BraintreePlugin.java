@@ -197,6 +197,7 @@ public final class BraintreePlugin extends CordovaPlugin {
 
             Map<String, Object> resultMap = new HashMap<String, Object>();
             resultMap.put("userCancelled", true);
+
             dropInUICallbackContext.success(new JSONObject(resultMap));
             dropInUICallbackContext = null;
         } else {
