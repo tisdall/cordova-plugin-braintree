@@ -11,6 +11,7 @@ To rebuild the frameworks for future versions, follow these steps:
 mkdir /tmp/braintree-sdk
 cd /tmp/braintree-sdk
 echo 'github "braintree/braintree_ios"' > Cartfile
+echo 'github "braintree/braintree-ios-drop-in"' >> Cartfile
 carthage update
 ```
 

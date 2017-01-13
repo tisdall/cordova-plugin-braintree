@@ -12,9 +12,11 @@ To add the plugin to your Cordova project, install the latest version of the plu
 
     cordova plugin add https://github.com/taracque/cordova-plugin-braintree
     
-be sure, that xcode npm module is installed:
-
-    npm ls | grep xcode
+be sure, that xcode and plist npm module is installed:
+```
+    npm install xcode
+    npm install plist
+```
 
 # Usage
 
@@ -62,12 +64,8 @@ Example Usage:
 
 ```
 var options = {
-    cancelText: "Cancel",
-    title: "Purchase",
-    ctaText: "Select Payment Method",
-    amount: "$49.99",
-    primaryDescription: "Your Item",
-    secondaryDescription :"Free shipping!"
+    amount: "49.99",
+    primaryDescription: "Your Item"
 };
 
 BraintreePlugin.presentDropInPaymentUI(options, function (result) {
@@ -82,3 +80,25 @@ BraintreePlugin.presentDropInPaymentUI(options, function (result) {
     }
 });
 ```
+
+## Apple Pay (iOS only) ##
+
+To allow ApplePay payment you need to initialize Apple Pay framework before usign the Drop/In Payment UI. Read Braintree docs to setup Merchant account: https://developers.braintreepayments.com/guides/apple-pay/configuration/ios/v4?_ga=1.6058933.767761401.1478959986#apple-pay-certificate-request-and-provisioning
+
+Method Signature:
+`setupApplePay(options)`
+
+Paramteres:
+
+* `options` (object): Merchant settings object, with the following keys:
+    *   `merchantId` (string): The merchant id generated on Apple Developer portal.
+    *   `currency` (string): The currency for payment, 3 letter code (ISO 4217)
+    *   `country` (string): The country code of merchant's residence. (ISO 3166-2)
+
+Example Usage:
+
+```
+BraintreePlugin.setupApplePay({ merchantId : 'com.braintree.merchant.sandbox.demo-app', country : 'US', currency : 'USD'});
+```
+
+ApplePay shown in Drop-In UI only if `BraintreePlugin.setupApplePay` called before `BraintreePlugin.presentDropInPaymentUI`

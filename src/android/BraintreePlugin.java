@@ -91,6 +91,11 @@ public final class BraintreePlugin extends CordovaPlugin {
         callbackContext.success();
     }
 
+    private synchronized void setupApplePay(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+        // Apple Pay available on iOS only
+        callbackContext.success();
+    }
+
     private synchronized void presentDropInPaymentUI(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
         // Ensure the client has been initialized.
@@ -100,55 +105,22 @@ public final class BraintreePlugin extends CordovaPlugin {
         }
 
         // Ensure we have the correct number of arguments.
-        if (args.length() != 6) {
-            callbackContext.error("cancelText, ctaText, title, amount, primaryDescription, and secondaryDescription are required.");
+        if (args.length() < 1) {
+            callbackContext.error("amount is required.");
             return;
         }
 
         // Obtain the arguments.
 
-        String cancelText = args.getString(0);
-
-        if (cancelText == null) {
-            callbackContext.error("cancelText is required.");
-            return;
-        }
-
-        String title = args.getString(1);
-
-        if (title == null) {
-            callbackContext.error("title is required.");
-        }
-
-        String ctaText = args.getString(2);
-
-        if (ctaText == null) {
-            callbackContext.error("ctaText is required.");
-        }
-
-        String amount = args.getString(3);
-
+        String amount = args.getString(0);
+        
         if (amount == null) {
             callbackContext.error("amount is required.");
         }
+        
+        String primaryDescription = args.getString(1);
 
-        String primaryDescription = args.getString(4);
-
-        if (primaryDescription == null) {
-            callbackContext.error("primaryDescription is required.");
-        }
-
-        String secondaryDescription = args.getString(5);
-
-        if (secondaryDescription == null) {
-            callbackContext.error("secondaryDescription is required.");
-        }
-
-//        dropInRequest.actionBarTitle(title);
-//        dropInRequest.submitButtonText(ctaText);
         dropInRequest.amount(amount);
-//        dropInRequest.primaryDescription(primaryDescription);
-//        dropInRequest.secondaryDescription(secondaryDescription);
 
         this.cordova.setActivityResultCallback(this);
         this.cordova.startActivityForResult(this, dropInRequest.getIntent(this.cordova.getActivity()), DROP_IN_REQUEST);

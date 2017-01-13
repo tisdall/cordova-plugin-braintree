@@ -31,6 +31,30 @@ BraintreePlugin.initialize = function initialize(token, successCallback, failure
     exec(successCallback, failureCallback, PLUGIN_ID, "initialize", [token]);
 };
 
+BraintreePlugin.setupApplePay = function setupApplePay(options, successCallback, failureCallback) {
+    if (!options) {
+        options = {};
+    }
+
+    if (typeof(options.merchantId) !== "string") {
+        failureCallback("Apple Pay Merchant ID must be provided");
+    };
+    if (typeof(options.currency) !== "string") {
+        failureCallback("Apple Pay currency must be provided");
+    };
+    if (typeof(options.country) !== "string") {
+        failureCallback("Apple Pay country must be provided");
+    };
+
+    var pluginOptions = [
+        options.merchantId,
+        options.currency,
+        options.country
+    ];
+
+	exec(successCallback, failureCallback, PLUGIN_ID, "setupApplePay", pluginOptions);
+};
+
 /**
  * Shows Braintree's drop-in payment UI.
  * 
@@ -44,40 +68,19 @@ BraintreePlugin.presentDropInPaymentUI = function showDropInUI(options, successC
         options = {};
     }
 
-    if (typeof(options.cancelText) !== "string") {
-        options.cancelText = "Cancel";
-    }
-
-    if (typeof(options.title) !== "string") {
-        options.title = "";
+    if (typeof(options.amount) === "undefined") {
+        options.amount = "0.00";
     };
-
-    if (typeof(options.ctaText) !== "string") {
-        options.ctaText = "Select Payment Method";
-    };
-
-    if (typeof(options.amount) !== "string") {
-        options.amount = "";
-    };
-
-    if (typeof(options.primaryDescription) !== "string") {
-        options.primaryDescription = "";
-    };
-
-    if (typeof(options.secondaryDescription) !== "string") {
-        options.secondaryDescription = "";
-    };
+    if (!isNaN(options.amount * 1)) {
+	    options.amount = (options.amount * 1).toFixed(2)
+	}
 
     var pluginOptions = [
-        options.cancelText,
-        options.title,
-        options.ctaText,
         options.amount,
-        options.primaryDescription,
-        options.secondaryDescription
-    ];
+        options.primaryDescription
+	];
 
-    exec(successCallback, failureCallback, PLUGIN_ID, "presentDropInPaymentUI", pluginOptions);
+	exec(successCallback, failureCallback, PLUGIN_ID, "presentDropInPaymentUI", pluginOptions);
 };
 
 module.exports = BraintreePlugin;
