@@ -2,6 +2,8 @@ package net.justincredible;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
@@ -22,13 +24,20 @@ import java.util.Map;
 
 public final class BraintreePlugin extends CordovaPlugin {
 
+    private static final String TAG = "BraintreeCordovaPlugin";
+
     private static final int DROP_IN_REQUEST = 100;
     private static final int PAYMENT_BUTTON_REQUEST = 200;
     private static final int CUSTOM_REQUEST = 300;
     private static final int PAYPAL_REQUEST = 400;
+    private static final int THREEDSECURE_REQUEST = 500;
 
     private DropInRequest dropInRequest = null;
     private CallbackContext dropInUICallbackContext = null;
+
+    private String token;
+    private String amount;
+    private boolean enableThreeDSecureVerification;
 
     @Override
     public synchronized boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
@@ -74,10 +83,10 @@ public final class BraintreePlugin extends CordovaPlugin {
         }
 
         // Obtain the arguments.
-        String token = args.getString(0);
+        token = args.getString(0);
 
         if (token == null || token.equals("")) {
-            callbackContext.error("A token is required.");
+            callbackContext.error("A token is required");
             return;
         }
 
@@ -106,19 +115,17 @@ public final class BraintreePlugin extends CordovaPlugin {
 
         // Ensure we have the correct number of arguments.
         if (args.length() < 1) {
-            callbackContext.error("amount is required.");
+            callbackContext.error("amount is required");
             return;
         }
 
         // Obtain the arguments.
+        amount = args.getString(0);
+        enableThreeDSecureVerification = args.getBoolean(1);
 
-        String amount = args.getString(0);
-        
         if (amount == null) {
             callbackContext.error("amount is required.");
         }
-        
-        String primaryDescription = args.getString(1);
 
         dropInRequest.amount(amount);
 
@@ -159,6 +166,47 @@ public final class BraintreePlugin extends CordovaPlugin {
             dropInUICallbackContext.error("Activity result handler for PAYPAL_REQUEST not implemented.");
             //TODO
         }
+        else if (requestCode == THREEDSECURE_REQUEST) {
+            this.handleThreeDSecureVerificationResult(resultCode, intent.getExtras());
+        }
+    }
+
+    /**
+     * Helper used to handle the result of the ThreeDSecureVerification activity.
+     *
+     * @param resultCode Indicates the result of the UI.
+     * @param intentExtras Contains payment information from the ThreeDSecureVerification activity.
+     */
+    private void handleThreeDSecureVerificationResult(int resultCode, Bundle intentExtras) {
+        if (resultCode == Activity.RESULT_OK) {
+            Log.d(TAG, "ThreeDSecureVerification OK");
+
+            String threeDSecureNonce = intentExtras.getString("threeDSecureNonce");
+            boolean liabilityShifted = intentExtras.getBoolean("liabilityShifted");
+            boolean liabilityShiftPossible = intentExtras.getBoolean("liabilityShiftPossible");
+
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("nonce", threeDSecureNonce);
+            resultMap.put("liabilityShifted", liabilityShifted);
+            resultMap.put("liabilityShiftPossible", liabilityShiftPossible);
+
+            dropInUICallbackContext.success(new JSONObject(resultMap));
+            dropInUICallbackContext = null;
+        } else if (resultCode == Activity.RESULT_CANCELED && intentExtras.getBoolean("userCancelled")) {
+            Log.d(TAG, "User cancelled");
+
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("userCancelled", true);
+            dropInUICallbackContext.success(new JSONObject(resultMap));
+            dropInUICallbackContext = null;
+        } else {
+            Log.d(TAG, "ThreeDSecureVerification error");
+
+            String threeDSecureVerificationError = intentExtras.getString("threeDSecureVerificationError");
+
+            dropInUICallbackContext.error("ThreeDSecure payment error: " + threeDSecureVerificationError);
+            dropInUICallbackContext = null;
+        }
     }
 
     /**
@@ -168,7 +216,6 @@ public final class BraintreePlugin extends CordovaPlugin {
      * @param paymentMethodNonce Contains information about a successful payment.
      */
     private void handleDropInPaymentUiResult(int resultCode, PaymentMethodNonce paymentMethodNonce) {
-
         if (dropInUICallbackContext == null) {
             return;
         }
@@ -187,9 +234,27 @@ public final class BraintreePlugin extends CordovaPlugin {
             return;
         }
 
-        Map<String, Object> resultMap = this.getPaymentUINonceResult(paymentMethodNonce);
-        dropInUICallbackContext.success(new JSONObject(resultMap));
-        dropInUICallbackContext = null;
+        if (enableThreeDSecureVerification) {
+            this.initializeThreeDSecureVerification(paymentMethodNonce);
+        } else {
+            Map<String, Object> resultMap = this.getPaymentUINonceResult(paymentMethodNonce);
+            dropInUICallbackContext.success(new JSONObject(resultMap));
+            dropInUICallbackContext = null;
+        }
+    }
+
+    /**
+     * Helper that initialize the ThreeDSecureVerification activity.
+     *
+     * @param paymentMethodNonce Contains information about a successful payment.
+     */
+    private void initializeThreeDSecureVerification(PaymentMethodNonce paymentMethodNonce) {
+        Intent intent = new Intent("net.justincredible.ThreeDSecureVerification");
+        intent.putExtra("amount", amount);
+        intent.putExtra("token", token);
+        intent.putExtra("paymentNonce", paymentMethodNonce.getNonce());
+
+        this.cordova.startActivityForResult(this, intent, THREEDSECURE_REQUEST);
     }
 
     /**
