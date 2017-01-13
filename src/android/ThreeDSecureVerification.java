@@ -32,6 +32,12 @@ public class ThreeDSecureVerification extends Activity implements PaymentMethodN
                     com.braintreepayments.api.ThreeDSecure.performVerification(mBraintreeFragment, paymentNonce, amount);
                 } catch (InvalidArgumentException exception) {
                     Log.d("BRAINTREE", "Braintree Fragment initialization exception: " + exception.getMessage());
+
+                    Intent intent = new Intent();
+                    intent.putExtra("error", exception.getMessage());
+                    setResult(Activity.RESULT_CANCELED, intent);
+
+                    finish();
                 }
             }
         }
@@ -40,11 +46,11 @@ public class ThreeDSecureVerification extends Activity implements PaymentMethodN
     @Override
     public void onCancel(int requestCode) {
         Log.d("BRAINTREE", "onCancel");
-        Log.d("BRAINTREE", String.valueOf(requestCode));
 
         firstTime = false;
 
         Intent intent = new Intent();
+        intent.putExtra("userCancelled", true);
         setResult(Activity.RESULT_CANCELED, intent);
 
         finish();

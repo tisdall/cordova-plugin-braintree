@@ -2,6 +2,7 @@ package net.justincredible;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 
 import org.apache.cordova.CallbackContext;
@@ -29,19 +30,22 @@ public final class BraintreePlugin extends CordovaPlugin {
     private static final int PAYPAL_REQUEST = 400;
     private static final int THREEDSECURE_REQUEST = 500;
 
-    private CallbackContext dropInUICallbackContext = null;
     private DropInRequest dropInRequest = null;
+    private CallbackContext dropInUICallbackContext = null;
 
     private String token;
     private String amount;
+    private boolean enableThreeDSecureVerification;
 
     @Override
     public synchronized boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+
         if (action == null) {
             return false;
         }
 
         if (action.equals("initialize")) {
+
             try {
                 this.initialize(args, callbackContext);
             }
@@ -52,6 +56,7 @@ public final class BraintreePlugin extends CordovaPlugin {
             return true;
         }
         else if (action.equals("presentDropInPaymentUI")) {
+
             try {
                 this.presentDropInPaymentUI(args, callbackContext);
             }
@@ -62,19 +67,20 @@ public final class BraintreePlugin extends CordovaPlugin {
             return true;
         }
         else {
-            // The given action was not handled above
+            // The given action was not handled above.
             return false;
         }
     }
 
     private synchronized void initialize(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-        // Ensure we have the correct number of arguments
+
+        // Ensure we have the correct number of arguments.
         if (args.length() != 1) {
-            callbackContext.error("A token is required");
+            callbackContext.error("A token is required.");
             return;
         }
 
-        // Obtain the arguments
+        // Obtain the arguments.
         token = args.getString(0);
 
         if (token == null || token.equals("")) {
@@ -85,34 +91,41 @@ public final class BraintreePlugin extends CordovaPlugin {
         dropInRequest = new DropInRequest().clientToken(token);
 
         if (dropInRequest == null) {
-            callbackContext.error("The Braintree client failed to initialize");
+            callbackContext.error("The Braintree client failed to initialize.");
             return;
         }
 
         callbackContext.success();
     }
 
+    private synchronized void setupApplePay(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
+        // Apple Pay available on iOS only
+        callbackContext.success();
+    }
+
     private synchronized void presentDropInPaymentUI(final JSONArray args, final CallbackContext callbackContext) throws JSONException {
-        // Ensure the client has been initialized
+
+        // Ensure the client has been initialized.
         if (dropInRequest == null) {
             callbackContext.error("The Braintree client must first be initialized via BraintreePlugin.initialize(token)");
             return;
         }
 
-        // Ensure we have the correct number of arguments
+        // Ensure we have the correct number of arguments.
         if (args.length() < 1) {
             callbackContext.error("amount is required");
             return;
         }
 
         // Obtain the arguments.
-        this.amount = args.getString(0);
+        amount = args.getString(0);
+        enableThreeDSecureVerification = args.getBoolean(1);
 
-        if (this.amount == null) {
-            callbackContext.error("amount is required");
+        if (amount == null) {
+            callbackContext.error("amount is required.");
         }
 
-        dropInRequest.amount(this.amount);
+        dropInRequest.amount(amount);
 
         this.cordova.setActivityResultCallback(this);
         this.cordova.startActivityForResult(this, dropInRequest.getIntent(this.cordova.getActivity()), DROP_IN_REQUEST);
@@ -129,6 +142,7 @@ public final class BraintreePlugin extends CordovaPlugin {
         }
 
         if (requestCode == DROP_IN_REQUEST) {
+
             PaymentMethodNonce paymentMethodNonce = null;
 
             if (resultCode == Activity.RESULT_OK) {
@@ -151,27 +165,41 @@ public final class BraintreePlugin extends CordovaPlugin {
             //TODO
         }
         else if (requestCode == THREEDSECURE_REQUEST) {
+            this.handleThreeDSecureVerificationResult(resultCode, intent.getExtras());
+        }
+    }
+
+    /**
+     * Helper used to handle the result of the ThreeDSecureVerification activity.
+     *
+     * @param resultCode Indicates the result of the UI.
+     * @param intentExtras Contains payment information from the ThreeDSecureVerification activity.
+     */
+    private void handleThreeDSecureVerificationResult(int resultCode, Bundle intentExtras) {
+        if (resultCode == Activity.RESULT_OK) {
+            Log.d("BRAINTREE", "3DSecure result OK");
+
+            String threeDSecureNonce = intentExtras.getString("threeDSecureNonce");
+            boolean liabilityShifted = intentExtras.getBoolean("liabilityShifted");
+            boolean liabilityShiftPossible = intentExtras.getBoolean("liabilityShiftPossible");
+
             Map<String, Object> resultMap = new HashMap<String, Object>();
-
-            if (resultCode == Activity.RESULT_OK) {
-                Log.d("BRAINTREE", "3DSecure result OK");
-
-                String threeDSecureNonce = intent.getExtras().getString("threeDSecureNonce");
-                boolean liabilityShifted = intent.getExtras().getBoolean("liabilityShifted");
-                boolean liabilityShiftPossible = intent.getExtras().getBoolean("liabilityShiftPossible");
-
-                resultMap.put("nonce", threeDSecureNonce);
-                resultMap.put("liabilityShifted", liabilityShifted);
-                resultMap.put("liabilityShiftPossible", liabilityShiftPossible);
-            } else if (intent.getExtras().getString("error") != null) {
-                Log.d("BRAINTREE", "3DSecure error");
-                resultMap.put("threeDSecureError", true);
-            } else {
-                Log.d("BRAINTREE", "3DSecure error or user cancelled");
-                resultMap.put("userCancelled", true);
-            }
+            resultMap.put("nonce", threeDSecureNonce);
+            resultMap.put("liabilityShifted", liabilityShifted);
+            resultMap.put("liabilityShiftPossible", liabilityShiftPossible);
 
             dropInUICallbackContext.success(new JSONObject(resultMap));
+            dropInUICallbackContext = null;
+        } else if (resultCode == Activity.RESULT_CANCELED && intentExtras.getBoolean("userCancelled")) {
+            Log.d("BRAINTREE", "User cancelled");
+
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("userCancelled", true);
+            dropInUICallbackContext.success(new JSONObject(resultMap));
+            dropInUICallbackContext = null;
+        } else {
+            Log.d("BRAINTREE", "3DSecure error");
+            dropInUICallbackContext.error("ThreeDSecure payment failed.");
             dropInUICallbackContext = null;
         }
     }
@@ -201,9 +229,24 @@ public final class BraintreePlugin extends CordovaPlugin {
             return;
         }
 
+        if (enableThreeDSecureVerification) {
+            this.initializeThreeDSecureVerification(paymentMethodNonce);
+        } else {
+            Map<String, Object> resultMap = this.getPaymentUINonceResult(paymentMethodNonce);
+            dropInUICallbackContext.success(new JSONObject(resultMap));
+            dropInUICallbackContext = null;
+        }
+    }
+
+    /**
+     * Helper that initialize the ThreeDSecureVerification activity.
+     *
+     * @param paymentMethodNonce Contains information about a successful payment.
+     */
+    private void initializeThreeDSecureVerification(PaymentMethodNonce paymentMethodNonce) {
         Intent intent = new Intent("net.justincredible.ThreeDSecureVerification");
-        intent.putExtra("amount", this.amount);
-        intent.putExtra("token", this.token);
+        intent.putExtra("amount", amount);
+        intent.putExtra("token", token);
         intent.putExtra("paymentNonce", paymentMethodNonce.getNonce());
 
         this.cordova.startActivityForResult(this, intent, THREEDSECURE_REQUEST);
