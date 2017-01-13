@@ -24,6 +24,8 @@ import java.util.Map;
 
 public final class BraintreePlugin extends CordovaPlugin {
 
+    private static final String TAG = "BraintreeCordovaPlugin";
+
     private static final int DROP_IN_REQUEST = 100;
     private static final int PAYMENT_BUTTON_REQUEST = 200;
     private static final int CUSTOM_REQUEST = 300;
@@ -177,7 +179,7 @@ public final class BraintreePlugin extends CordovaPlugin {
      */
     private void handleThreeDSecureVerificationResult(int resultCode, Bundle intentExtras) {
         if (resultCode == Activity.RESULT_OK) {
-            Log.d("BRAINTREE", "3DSecure result OK");
+            Log.d(TAG, "ThreeDSecureVerification OK");
 
             String threeDSecureNonce = intentExtras.getString("threeDSecureNonce");
             boolean liabilityShifted = intentExtras.getBoolean("liabilityShifted");
@@ -191,15 +193,18 @@ public final class BraintreePlugin extends CordovaPlugin {
             dropInUICallbackContext.success(new JSONObject(resultMap));
             dropInUICallbackContext = null;
         } else if (resultCode == Activity.RESULT_CANCELED && intentExtras.getBoolean("userCancelled")) {
-            Log.d("BRAINTREE", "User cancelled");
+            Log.d(TAG, "User cancelled");
 
             Map<String, Object> resultMap = new HashMap<String, Object>();
             resultMap.put("userCancelled", true);
             dropInUICallbackContext.success(new JSONObject(resultMap));
             dropInUICallbackContext = null;
         } else {
-            Log.d("BRAINTREE", "3DSecure error");
-            dropInUICallbackContext.error("ThreeDSecure payment failed.");
+            Log.d(TAG, "ThreeDSecureVerification error");
+
+            String threeDSecureVerificationError = intentExtras.getString("threeDSecureVerificationError");
+
+            dropInUICallbackContext.error("ThreeDSecure payment error: " + threeDSecureVerificationError);
             dropInUICallbackContext = null;
         }
     }

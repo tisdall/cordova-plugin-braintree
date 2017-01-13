@@ -15,6 +15,9 @@ import com.braintreepayments.api.models.PaymentMethodNonce;
 
 public class ThreeDSecureVerification extends Activity implements PaymentMethodNonceCreatedListener,
         BraintreeCancelListener, BraintreeErrorListener {
+
+    private static final String TAG = "3DSecureVerification";
+
     private boolean firstTime = true;
 
     @Override
@@ -31,10 +34,10 @@ public class ThreeDSecureVerification extends Activity implements PaymentMethodN
                     BraintreeFragment mBraintreeFragment = BraintreeFragment.newInstance(this, token);
                     com.braintreepayments.api.ThreeDSecure.performVerification(mBraintreeFragment, paymentNonce, amount);
                 } catch (InvalidArgumentException exception) {
-                    Log.d("BRAINTREE", "Braintree Fragment initialization exception: " + exception.getMessage());
+                    Log.e(TAG, "Braintree Fragment initialization exception: " + exception.getMessage());
 
                     Intent intent = new Intent();
-                    intent.putExtra("error", exception.getMessage());
+                    intent.putExtra("threeDSecureVerificationError", exception.getMessage());
                     setResult(Activity.RESULT_CANCELED, intent);
 
                     finish();
@@ -45,7 +48,7 @@ public class ThreeDSecureVerification extends Activity implements PaymentMethodN
 
     @Override
     public void onCancel(int requestCode) {
-        Log.d("BRAINTREE", "onCancel");
+        Log.w(TAG, "onCancel");
 
         firstTime = false;
 
@@ -58,8 +61,7 @@ public class ThreeDSecureVerification extends Activity implements PaymentMethodN
 
     @Override
     public void onError(Exception error) {
-        Log.d("BRAINTREE", "onError");
-        Log.d("BRAINTREE", error.getMessage());
+        Log.e(TAG, "onError: "+ error.getMessage());
 
         firstTime = false;
 
@@ -72,7 +74,7 @@ public class ThreeDSecureVerification extends Activity implements PaymentMethodN
 
     @Override
     public void onPaymentMethodNonceCreated(PaymentMethodNonce paymentMethodNonce) {
-        Log.d("BRAINTREE", "onPaymentMethodNonceCreated");
+        Log.d(TAG, "onPaymentMethodNonceCreated");
 
         CardNonce cardNonce = (CardNonce) paymentMethodNonce;
         String threeDSecureNonce = paymentMethodNonce.getNonce();
