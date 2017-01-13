@@ -10,6 +10,7 @@ android {
 dependencies {
     compile 'com.braintreepayments.api:braintree:2.3.12'
     compile 'com.braintreepayments.api:drop-in:3.0.1'
+    compile 'io.card:android-sdk:5.4.1'
 }
 
 def getPackageName() {
