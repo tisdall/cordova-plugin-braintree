@@ -203,9 +203,9 @@ public final class BraintreePlugin extends CordovaPlugin {
         } else {
             Log.d(TAG, "ThreeDSecureVerification error");
 
-            String threeDSecureVerificationError = intentExtras.getString("threeDSecureVerificationError");
+            String error = intentExtras.getString("error");
 
-            dropInUICallbackContext.error("ThreeDSecure payment error: " + threeDSecureVerificationError);
+            dropInUICallbackContext.error("ThreeDSecure payment error: " + error);
             dropInUICallbackContext = null;
         }
     }
