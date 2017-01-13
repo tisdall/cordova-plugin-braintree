@@ -126,24 +126,35 @@ NSString *countryCode;
     dropInUIcallbackId = nil;
 }
 
+- (void)errorOccurred:(NSError *) error {
+    NSDictionary *dictionary = @{ @"error": error.localizedDescription };
+
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                                  messageAsDictionary:dictionary];
+
+    [self.viewController dismissViewControllerAnimated:YES completion:nil];
+
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
+    dropInUIcallbackId = nil;
+}
+
 - (void)presentDropInPaymentUI:(CDVInvokedUrlCommand *)command {
-    
+
     // Ensure the client has been initialized.
     if (!self.braintreeClient) {
         CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"The Braintree client must first be initialized via BraintreePlugin.initialize(token)"];
         [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
         return;
     }
-    
+
     // Ensure we have the correct number of arguments.
     if ([command.arguments count] < 1) {
         CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"amount required."];
         [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
         return;
     }
-    
+
     // Obtain the arguments.
-    
     NSString* amount = (NSString *)[command.arguments objectAtIndex:0];
     if ([amount isKindOfClass:[NSNumber class]]) {
         amount = [(NSNumber *)amount stringValue];
@@ -153,20 +164,22 @@ NSString *countryCode;
         [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
         return;
     }
-    
+
     NSString* primaryDescription = [command.arguments objectAtIndex:1];
-    
+
     // Save off the Cordova callback ID so it can be used in the completion handlers.
     dropInUIcallbackId = command.callbackId;
-    
+
     /* Drop-IN 5.0 */
     BTDropInRequest *paymentRequest = [[BTDropInRequest alloc] init];
     // 3DSecure fix
     //paymentRequest.amount = amount;
     paymentRequest.applePayDisabled = !applePayInited;
-    
+
     BTDropInController *dropIn = [[BTDropInController alloc] initWithAuthorization:self.token request:paymentRequest handler:^(BTDropInController * _Nonnull controller, BTDropInResult * _Nullable result, NSError * _Nullable error) {
-        
+
+        __block BOOL alreadyVerified = NO;
+
         if (error != nil) {
             // TODO handle this
             NSLog(@"ERROR");
@@ -177,7 +190,7 @@ NSString *countryCode;
         } else {
             if (dropInUIcallbackId) {
                 [self.viewController dismissViewControllerAnimated:YES completion:nil];
-                
+
                 if (result.paymentOptionType == BTUIKPaymentOptionTypeApplePay ) { // ApplePay
                     PKPaymentRequest *apPaymentRequest = [[PKPaymentRequest alloc] init];
                     apPaymentRequest.paymentSummaryItems = @[
@@ -187,52 +200,63 @@ NSString *countryCode;
                     apPaymentRequest.merchantCapabilities = PKMerchantCapability3DS;
                     apPaymentRequest.currencyCode = currencyCode;
                     apPaymentRequest.countryCode = countryCode;
-                    
+
                     apPaymentRequest.merchantIdentifier = applePayMerchantID;
-                    
+
                     PKPaymentAuthorizationViewController *viewController = [[PKPaymentAuthorizationViewController alloc] initWithPaymentRequest:apPaymentRequest];
                     viewController.delegate = self;
-                    
+
                     applePaySuccess = NO;
-                    
+
                     /* display ApplePay on the rootViewController */
                     UIViewController *rootViewController = [[[UIApplication sharedApplication] keyWindow] rootViewController];
-                    
+
                     [rootViewController presentViewController:viewController animated:YES completion:nil];
                 }
                 else if (result.paymentOptionType == BTUIKPaymentOptionTypePayPal) { // PayPal
                     NSLog(@"%@", result.paymentMethod.nonce);
-                    
+
                     // TODO Fix returned data
                     NSDictionary *dictionary = @{@"nonce" : result.paymentMethod.nonce};
-                    
+
                     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:dictionary];
-                    
+
                     [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
                     dropInUIcallbackId = nil;
                 }
                 else { // Credit card
                     BTThreeDSecureDriver *threeDSecureDriver = [[BTThreeDSecureDriver alloc] initWithAPIClient:self.braintreeClient delegate:self];
-                    
+
                     [threeDSecureDriver verifyCardWithNonce:result.paymentMethod.nonce
                                                      amount:[NSDecimalNumber decimalNumberWithString:amount]
                                                  completion:^(BTThreeDSecureCardNonce *card, NSError *error) {
-                                                     // TODO check user cancelled VS other errors
-                                                     if (error || !card) {
-                                                         NSLog(@"error: %@",error);
+                                                     if (error && !alreadyVerified) {
+                                                         NSLog(@"Error %@", error.localizedDescription);
+
+                                                         alreadyVerified = YES;
+
+                                                         [self errorOccurred:error];
+                                                     } else if (!card && !alreadyVerified) {
+                                                         NSLog(@"User cancelled");
+
+                                                         alreadyVerified = YES;
+
                                                          [self userCancelled];
-                                                     } else {
+                                                     } else if (!alreadyVerified) {
                                                          NSLog(@"3D Secure Card nonce: %@",card.nonce);
                                                          NSLog(@"Is liability shifted? %d", card.liabilityShifted);
                                                          NSLog(@"Is liability shift possible? %d", card.liabilityShiftPossible);
-                                                         NSLog(@"%@", card.nonce);
-                                                         
-                                                         // TODO Fix returned data
-                                                         //NSDictionary *dictionary = [self getPaymentUINonceResult:result.paymentMethod];
-                                                         NSDictionary *dictionary = @{@"nonce" : card.nonce};
-                                                         
+
+                                                         alreadyVerified = YES;
+
+                                                         NSDictionary *dictionary = @{
+                                                                                      @"nonce": card.nonce,
+                                                                                      @"liabilityShifted": [NSNumber numberWithBool:card.liabilityShifted],
+                                                                                      @"liabilityShiftPossible": [NSNumber numberWithBool:card.liabilityShifted]
+                                                                                      };
+
                                                          CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:dictionary];
-                                                         
+
                                                          [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
                                                          dropInUIcallbackId = nil;
                                                      }
@@ -241,35 +265,35 @@ NSString *countryCode;
             }
         }
     }];
-    
+
     [self.viewController presentViewController:dropIn animated:YES completion:nil];
 }
 
 #pragma mark - PKPaymentAuthorizationViewControllerDelegate
 - (void)paymentAuthorizationViewController:(PKPaymentAuthorizationViewController *)controller didAuthorizePayment:(PKPayment *)payment completion:(void (^)(PKPaymentAuthorizationStatus status))completion {
     applePaySuccess = YES;
-    
+
     BTApplePayClient *applePayClient = [[BTApplePayClient alloc] initWithAPIClient:self.braintreeClient];
     [applePayClient tokenizeApplePayPayment:payment completion:^(BTApplePayCardNonce *tokenizedApplePayPayment, NSError *error) {
         if (tokenizedApplePayPayment) {
             // On success, send nonce to your server for processing.
             NSDictionary *dictionary = [self getPaymentUINonceResult:tokenizedApplePayPayment];
-            
+
             CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                                           messageAsDictionary:dictionary];
-            
+
             [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
             dropInUIcallbackId = nil;
-            
+
             // Then indicate success or failure via the completion callback, e.g.
             completion(PKPaymentAuthorizationStatusSuccess);
         } else {
             // Tokenization failed. Check `error` for the cause of the failure.
             CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Apple Pay tokenization failed"];
-            
+
             [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
             dropInUIcallbackId = nil;
-            
+
             // Indicate failure via the completion callback:
             completion(PKPaymentAuthorizationStatusFailure);
         }
@@ -278,22 +302,22 @@ NSString *countryCode;
 
 - (void)paymentAuthorizationViewControllerDidFinish:(PKPaymentAuthorizationViewController *)controller {
     UIViewController *rootViewController = [[[UIApplication sharedApplication] keyWindow] rootViewController];
-    
+
     [rootViewController dismissViewControllerAnimated:YES completion:nil];
-    
+
     /* if not success, fire cancel event */
     if (!applePaySuccess) {
         NSDictionary *dictionary = @{ @"userCancelled": @YES };
-        
+
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK  messageAsDictionary:dictionary];
-        
+
         [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
         dropInUIcallbackId = nil;
     }
 }
 
 
-// 3DSecure fix
+// 3DSecure handlers
 - (void)paymentDriver:(id)driver requestsPresentationOfViewController:(UIViewController *)viewController {
     [self.viewController presentViewController:viewController animated:YES completion:nil];
 }
