@@ -31,6 +31,13 @@ BraintreePlugin.initialize = function initialize(token, successCallback, failure
     exec(successCallback, failureCallback, PLUGIN_ID, "initialize", [token]);
 };
 
+/**
+ * Shows Braintree's Apple Pay UI.
+ *
+ * @param {object} options - The options used to control the Apple Pay UI.
+ * @param successCallback The success callback for this asynchronous function; receives a result object.
+ * @param failureCallback The failure callback for this asynchronous function; receives an error string.
+ */
 BraintreePlugin.setupApplePay = function setupApplePay(options, successCallback, failureCallback) {
     if (!options) {
         options = {};
@@ -71,20 +78,49 @@ BraintreePlugin.presentDropInPaymentUI = function showDropInUI(options, successC
     if (typeof(options.amount) === "undefined") {
         options.amount = "0.00";
     }
-    if (!isNaN(options.amount * 1)) {
-	    options.amount = (options.amount * 1).toFixed(2)
-	}
 
-    if (typeof(options.enableThreeDSecureVerification) === "undefined") {
-        options.enableThreeDSecureVerification = false;
+    if (!isNaN(options.amount * 1)) {
+        options.amount = (options.amount * 1).toFixed(2)
     }
 
     var pluginOptions = [
         options.amount,
-        options.enableThreeDSecureVerification
+        options.primaryDescription
+    ];
+
+    exec(successCallback, failureCallback, PLUGIN_ID, "presentDropInPaymentUI", pluginOptions);
+};
+
+/**
+ * Shows Braintree's ThreeDSecure verification.
+ *
+ * @param {object} options - The options used to control the drop-in payment UI.
+ * @param [function] successCallback - The success callback for this asynchronous function; receives a result object.
+ * @param [function] failureCallback - The failure callback for this asynchronous function; receives an error string.
+ */
+BraintreePlugin.presentThreeDSecureVerification = function presentThreeDSecureVerification(options, successCallback, failureCallback) {
+
+    if (!options) {
+        failureCallback("Must provide options");
+    }
+
+    if (typeof(options.amount) === "undefined") {
+        options.amount = "0.00";
+    }
+    if (!isNaN(options.amount * 1)) {
+	    options.amount = (options.amount * 1).toFixed(2)
+	}
+
+    if (typeof(options.creditCardNonce) === "undefined") {
+        failureCallback("Credit card nonce must be provided");
+    }
+
+    var pluginOptions = [
+        options.amount,
+        options.creditCardNonce
 	];
 
-	exec(successCallback, failureCallback, PLUGIN_ID, "presentDropInPaymentUI", pluginOptions);
+	exec(successCallback, failureCallback, PLUGIN_ID, "presentThreeDSecureVerification", pluginOptions);
 };
 
 module.exports = BraintreePlugin;
