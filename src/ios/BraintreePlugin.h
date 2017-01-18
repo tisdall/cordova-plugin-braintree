@@ -10,4 +10,5 @@
 @interface BraintreePlugin : CDVPlugin
 - (void)initialize:(CDVInvokedUrlCommand *)command;
 - (void)presentDropInPaymentUI:(CDVInvokedUrlCommand *)command;
+- (void)presentThreeDSecureVerification:(CDVInvokedUrlCommand *)command;
 @end

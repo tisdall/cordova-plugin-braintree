@@ -19,8 +19,9 @@ declare module BraintreePlugin {
         initialize(token: string, successCallback?: () => void, failureCallback?: (error: string) => void): void;
 
         /**
-         * Shows Braintree's drop-in payment UI.
+         * Shows Braintree's Apple Pay UI.
          *
+         * @param {object} options - The options used to control the Apple Pay UI.
          * @param successCallback The success callback for this asynchronous function; receives a result object.
          * @param failureCallback The failure callback for this asynchronous function; receives an error string.
          */
@@ -29,10 +30,20 @@ declare module BraintreePlugin {
         /**
          * Shows Braintree's drop-in payment UI.
          *
+         * @param {object} options - The options used to control the drop-in payment UI.
          * @param successCallback The success callback for this asynchronous function; receives a result object.
          * @param failureCallback The failure callback for this asynchronous function; receives an error string.
          */
         presentDropInPaymentUI(options?: PaymentUIOptions, successCallback?: (result: PaymentUIResult) => void, failureCallback?: (error: string) => void): void;
+
+        /**
+         * Shows Braintree's ThreeDSecure verification.
+         *
+         * @param {object} options - The options used to control ThreeDSecure verification.
+         * @param successCallback The success callback for this asynchronous function; receives a result object.
+         * @param failureCallback The failure callback for this asynchronous function; receives an error string.
+         */
+        presentThreeDSecureVerification(options: ThreeDVerificationOptions, successCallback?: (result: PaymentUIResult) => void, failureCallback?: (error: string) => void): void;
     }
 
     /**
@@ -68,10 +79,29 @@ declare module BraintreePlugin {
         amount?: string;
 
         /**
-         * Enable the ThreeDSecure verification.
-         * Defaults to false.
+         * The description of the transaction to show in the drop-in UI on the
+         * summary row.
+         * Defaults to empty string.
          */
-        enableThreeDSecureVerification?: boolean;
+        primaryDescription?: string;
+    }
+
+    /**
+     * Options for the presentThreeDSecureVerification method.
+     */
+    interface ThreeDVerificationOptions {
+
+        /**
+         * The amount of the transaction to show in the drop-in UI on the
+         * summary row as well as the call to action button.
+         * Defaults to 0.0.
+         */
+        amount?: string;
+
+        /**
+         * The credit card nonce obtained from presentDropInPaymentUI.
+         */
+        creditCardNonce?: string;
     }
 
     /**
