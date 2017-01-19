@@ -232,8 +232,10 @@ public final class BraintreePlugin extends CordovaPlugin {
 
             Map<String, Object> resultMap = new HashMap<String, Object>();
             resultMap.put("nonce", threeDSecureNonce);
-            resultMap.put("liabilityShifted", liabilityShifted);
-            resultMap.put("liabilityShiftPossible", liabilityShiftPossible);
+            Map<String, Object> verificationDetails = new HashMap<String, Object>();
+            verificationDetails.put("liabilityShifted", liabilityShifted);
+            verificationDetails.put("liabilityShiftPossible", liabilityShiftPossible);
+            resultMap.put("verificationDetails", verificationDetails);
 
             dropInUICallbackContext.success(new JSONObject(resultMap));
             dropInUICallbackContext = null;

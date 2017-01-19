@@ -58,11 +58,17 @@ NSString *countryCode;
 #pragma mark - Cordova commands
 
 - (void)initialize:(CDVInvokedUrlCommand *)command {
+    CDVPluginResult *pluginResult;
 
     // Ensure we have the correct number of arguments.
     if ([command.arguments count] != 1) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"A token is required."];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                            messageAsDictionary:@{
+                                                  @"error": @"A token is required.",
+                                                  @"type": @"plugin"
+                                                  }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
 
@@ -70,16 +76,26 @@ NSString *countryCode;
     self.token = [command.arguments objectAtIndex:0];
 
     if (!self.token) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"A token is required."];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                            messageAsDictionary:@{
+                                                  @"error": @"A token is required.",
+                                                  @"type": @"plugin"
+                                                  }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
 
     self.braintreeClient = [[BTAPIClient alloc] initWithAuthorization:self.token];
 
     if (!self.braintreeClient) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"The Braintree client failed to initialize."];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                            messageAsDictionary:@{
+                                                  @"error": @"The Braintree client failed to initialize.",
+                                                  @"type": @"plugin"
+                                                  }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
 
@@ -88,22 +104,32 @@ NSString *countryCode;
 
     [BTAppSwitch setReturnURLScheme:bundle_id];
 
-    CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)setupApplePay:(CDVInvokedUrlCommand *)command {
 
     // Ensure the client has been initialized.
     if (!self.braintreeClient) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"The Braintree client must first be initialized via BraintreePlugin.initialize(token)"];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                             messageAsDictionary:@{
+                                                                   @"error": @"The Braintree client must first be initialized via BraintreePlugin.initialize(token)",
+                                                                   @"type": @"plugin"
+                                                                   }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
 
     if ([command.arguments count] != 3) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Merchant id, Currency code and Country code are required."];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                             messageAsDictionary:@{
+                                                                   @"error": @"Merchant id, Currency code and Country code are required.",
+                                                                   @"type": @"plugin"
+                                                                   }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
 
@@ -120,19 +146,18 @@ NSString *countryCode;
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                                   messageAsDictionary:dictionary];
 
-    [self.viewController dismissViewControllerAnimated:YES completion:nil];
-
     [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
     callbackId = nil;
 }
 
 - (void)errorOccurredWithCallbackId:(NSString *) callbackId AndError:(NSError *) error {
-    NSDictionary *dictionary = @{ @"error": error.localizedDescription };
+    NSDictionary *dictionary = @{
+                                 @"error": error.localizedDescription,
+                                 @"type": @"braintree"
+                                 };
 
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                                   messageAsDictionary:dictionary];
-
-    [self.viewController dismissViewControllerAnimated:YES completion:nil];
 
     [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
     callbackId = nil;
@@ -142,15 +167,25 @@ NSString *countryCode;
 
     // Ensure the client has been initialized.
     if (!self.braintreeClient) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"The Braintree client must first be initialized via BraintreePlugin.initialize(token)"];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                             messageAsDictionary:@{
+                                                                   @"error": @"The Braintree client must first be initialized via BraintreePlugin.initialize(token)",
+                                                                   @"type": @"plugin"
+                                                                   }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
 
     // Ensure we have the correct number of arguments.
     if ([command.arguments count] < 1) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"amount required."];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                             messageAsDictionary:@{
+                                                                   @"error": @"Amount required.",
+                                                                   @"type": @"plugin"
+                                                                   }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
 
@@ -159,9 +194,15 @@ NSString *countryCode;
     if ([amount isKindOfClass:[NSNumber class]]) {
         amount = [(NSNumber *)amount stringValue];
     }
+
     if (!amount) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"amount is required."];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                             messageAsDictionary:@{
+                                                                   @"error": @"Amount required.",
+                                                                   @"type": @"plugin"
+                                                                   }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
 
@@ -177,16 +218,19 @@ NSString *countryCode;
 
     BTDropInController *dropIn = [[BTDropInController alloc] initWithAuthorization:self.token request:paymentRequest handler:^(BTDropInController * _Nonnull controller, BTDropInResult * _Nullable result, NSError * _Nullable error) {
 
+        [self.viewController dismissViewControllerAnimated:YES completion:nil];
+
         if (error != nil) {
-            NSLog(@"ERROR");
+            if (dropInUIcallbackId) {
+                NSLog(@"Error %@", error.localizedDescription);
+                [self errorOccurredWithCallbackId:dropInUIcallbackId AndError:error];
+            }
         } else if (result.cancelled) {
             if (dropInUIcallbackId) {
                 [self userCancelledWithCallbackId:dropInUIcallbackId];
             }
         } else {
             if (dropInUIcallbackId) {
-                [self.viewController dismissViewControllerAnimated:YES completion:nil];
-
                 if (result.paymentOptionType == BTUIKPaymentOptionTypeApplePay ) { // ApplePay
                     PKPaymentRequest *apPaymentRequest = [[PKPaymentRequest alloc] init];
                     apPaymentRequest.paymentSummaryItems = @[
@@ -227,15 +271,25 @@ NSString *countryCode;
 
     // Ensure the client has been initialized.
     if (!self.braintreeClient) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"The Braintree client must first be initialized via BraintreePlugin.initialize(token)"];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                             messageAsDictionary:@{
+                                                                   @"error": @"The Braintree client must first be initialized via BraintreePlugin.initialize(token)",
+                                                                   @"type": @"plugin"
+                                                                   }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
 
     // Ensure we have the correct number of arguments.
     if ([command.arguments count] < 2) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Credit card nonce and amount required."];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                             messageAsDictionary:@{
+                                                                   @"error": @"Credit card nonce and amount required.",
+                                                                   @"type": @"plugin"
+                                                                   }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
 
@@ -245,16 +299,27 @@ NSString *countryCode;
         amount = [(NSNumber *)amount stringValue];
     }
     if (!amount) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Amount is required."];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                             messageAsDictionary:@{
+                                                                   @"error": @"Amount is required.",
+                                                                   @"type": @"plugin"
+                                                                   }];
+
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
 
     // Obtain the arguments.
     NSString* creditCardNonce = (NSString *)[command.arguments objectAtIndex:1];
     if (!creditCardNonce) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Credit card nonce is required."];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                             messageAsDictionary:@{
+                                                                   @"error": @"Credit card nonce is required.",
+                                                                   @"type": @"plugin"
+                                                                   }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
 
@@ -288,8 +353,10 @@ NSString *countryCode;
 
                                          NSDictionary *dictionary = @{
                                                                       @"nonce": card.nonce,
-                                                                      @"liabilityShifted": [NSNumber numberWithBool:card.liabilityShifted],
-                                                                      @"liabilityShiftPossible": [NSNumber numberWithBool:card.liabilityShifted]
+                                                                      @"verificationDetails": @{
+                                                                              @"liabilityShifted": [NSNumber numberWithBool:card.liabilityShifted],
+                                                                              @"liabilityShiftPossible": [NSNumber numberWithBool:card.liabilityShifted]
+                                                                              }
                                                                       };
 
                                          CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:dictionary];
@@ -320,7 +387,11 @@ NSString *countryCode;
             completion(PKPaymentAuthorizationStatusSuccess);
         } else {
             // Tokenization failed. Check `error` for the cause of the failure.
-            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Apple Pay tokenization failed"];
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                                 messageAsDictionary:@{
+                                                                       @"error": error.localizedDescription,
+                                                                       @"type": @"braintree"
+                                                                       }];
 
             [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
             dropInUIcallbackId = nil;
@@ -489,4 +560,3 @@ NSString *countryCode;
 }
 
 @end
-

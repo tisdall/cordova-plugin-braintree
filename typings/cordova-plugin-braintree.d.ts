@@ -43,7 +43,7 @@ declare module BraintreePlugin {
          * @param successCallback The success callback for this asynchronous function; receives a result object.
          * @param failureCallback The failure callback for this asynchronous function; receives an error string.
          */
-        presentThreeDSecureVerification(options: ThreeDVerificationOptions, successCallback?: (result: PaymentUIResult) => void, failureCallback?: (error: string) => void): void;
+        presentThreeDSecureVerification(options: ThreeDSecureVerificationOptions, successCallback?: (result: ThreeDSecureVerificationDetails) => void, failureCallback?: (error: string) => void): void;
     }
 
     /**
@@ -89,7 +89,7 @@ declare module BraintreePlugin {
     /**
      * Options for the presentThreeDSecureVerification method.
      */
-    interface ThreeDVerificationOptions {
+    interface ThreeDSecureVerificationOptions {
 
         /**
          * The amount of the transaction to show in the drop-in UI on the
@@ -102,6 +102,16 @@ declare module BraintreePlugin {
          * The credit card nonce obtained from presentDropInPaymentUI.
          */
         creditCardNonce?: string;
+    }
+
+    interface ThreeDSecureVerificationDetailsData {
+        liabilityShiftPossible: boolean;
+        liabilityShifted: boolean;
+    }
+
+    interface ThreeDSecureVerificationDetails {
+        nonce: string;
+        verificationDetails: ThreeDSecureVerificationDetailsData;
     }
 
     /**

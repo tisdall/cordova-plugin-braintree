@@ -22,10 +22,10 @@ BraintreePlugin.setupApplePay(applePayOptions);
 BraintreePlugin.setupApplePay(applePayOptions, () => {});
 BraintreePlugin.setupApplePay(applePayOptions, () => {}, () => {});
 
-const threeDVerificationOptions: BraintreePlugin.ThreeDVerificationOptions = {
+const threeDVerificationOptions: BraintreePlugin.ThreeDSecureVerificationOptions = {
     amount: "49.99",
     creditCardNonce: "123-456-789"
 };
 BraintreePlugin.presentThreeDSecureVerification(threeDVerificationOptions);
-BraintreePlugin.presentThreeDSecureVerification(threeDVerificationOptions, (result: BraintreePlugin.PaymentUIResult) => {});
-BraintreePlugin.presentThreeDSecureVerification(threeDVerificationOptions, (result: BraintreePlugin.PaymentUIResult) => {}, () => {});
+BraintreePlugin.presentThreeDSecureVerification(threeDVerificationOptions, (result: BraintreePlugin.ThreeDSecureVerificationDetails) => {});
+BraintreePlugin.presentThreeDSecureVerification(threeDVerificationOptions, (result: BraintreePlugin.ThreeDSecureVerificationDetails) => {}, () => {});
