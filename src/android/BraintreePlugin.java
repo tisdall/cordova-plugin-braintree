@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.braintreepayments.api.dropin.DropInActivity;
 import com.braintreepayments.api.dropin.DropInRequest;
 import com.braintreepayments.api.dropin.DropInResult;
 import com.braintreepayments.api.models.CardNonce;
@@ -51,7 +52,10 @@ public final class BraintreePlugin extends CordovaPlugin {
                 this.initialize(args, callbackContext);
             }
             catch (Exception exception) {
-                callbackContext.error("BraintreePlugin uncaught exception: " + exception.getMessage());
+                Map<String, Object> resultMap = new HashMap<String, Object>();
+                resultMap.put("error", "BraintreePlugin uncaught exception: " + exception.getMessage());
+                resultMap.put("type", "plugin");
+                callbackContext.error(new JSONObject(resultMap));
             }
 
             return true;
@@ -62,7 +66,10 @@ public final class BraintreePlugin extends CordovaPlugin {
                 this.presentDropInPaymentUI(args, callbackContext);
             }
             catch (Exception exception) {
-                callbackContext.error("BraintreePlugin uncaught exception: " + exception.getMessage());
+                Map<String, Object> resultMap = new HashMap<String, Object>();
+                resultMap.put("error", "BraintreePlugin uncaught exception: " + exception.getMessage());
+                resultMap.put("type", "plugin");
+                callbackContext.error(new JSONObject(resultMap));
             }
 
             return true;
@@ -73,7 +80,10 @@ public final class BraintreePlugin extends CordovaPlugin {
                 this.presentThreeDSecureVerification(args, callbackContext);
             }
             catch (Exception exception) {
-                callbackContext.error("BraintreePlugin uncaught exception: " + exception.getMessage());
+                Map<String, Object> resultMap = new HashMap<String, Object>();
+                resultMap.put("error", "BraintreePlugin uncaught exception: " + exception.getMessage());
+                resultMap.put("type", "plugin");
+                callbackContext.error(new JSONObject(resultMap));
             }
 
             return true;
@@ -96,14 +106,20 @@ public final class BraintreePlugin extends CordovaPlugin {
         token = args.getString(0);
 
         if (token == null || token.equals("")) {
-            callbackContext.error("A token is required");
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("error", "A token is required");
+            resultMap.put("type", "plugin");
+            callbackContext.error(new JSONObject(resultMap));
             return;
         }
 
         dropInRequest = new DropInRequest().clientToken(token);
 
         if (dropInRequest == null) {
-            callbackContext.error("The Braintree client failed to initialize.");
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("error", "The Braintree client failed to initialize.");
+            resultMap.put("type", "plugin");
+            callbackContext.error(new JSONObject(resultMap));
             return;
         }
 
@@ -119,13 +135,19 @@ public final class BraintreePlugin extends CordovaPlugin {
 
         // Ensure the client has been initialized.
         if (dropInRequest == null) {
-            callbackContext.error("The Braintree client must first be initialized via BraintreePlugin.initialize(token)");
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("error", "The Braintree client must first be initialized via BraintreePlugin.initialize(token)");
+            resultMap.put("type", "plugin");
+            callbackContext.error(new JSONObject(resultMap));
             return;
         }
 
         // Ensure we have the correct number of arguments.
         if (args.length() < 1) {
-            callbackContext.error("amount is required");
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("error", "Amount is required");
+            resultMap.put("type", "plugin");
+            callbackContext.error(new JSONObject(resultMap));
             return;
         }
 
@@ -133,7 +155,11 @@ public final class BraintreePlugin extends CordovaPlugin {
         amount = args.getString(0);
 
         if (amount == null) {
-            callbackContext.error("amount is required.");
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("error", "Amount is required");
+            resultMap.put("type", "plugin");
+            callbackContext.error(new JSONObject(resultMap));
+            return;
         }
 
         dropInRequest.amount(amount);
@@ -148,25 +174,39 @@ public final class BraintreePlugin extends CordovaPlugin {
 
         // Ensure the client has been initialized.
         if (dropInRequest == null) {
-            callbackContext.error("The Braintree client must first be initialized via BraintreePlugin.initialize(token)");
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("error", "The Braintree client must first be initialized via BraintreePlugin.initialize(token)");
+            resultMap.put("type", "plugin");
+            callbackContext.error(new JSONObject(resultMap));
             return;
         }
 
         // Ensure we have the correct number of arguments.
         if (args.length() < 2) {
-            callbackContext.error("Credit card nonce and amount required.");
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("error", "Credit card nonce and amount required.");
+            resultMap.put("type", "plugin");
+            callbackContext.error(new JSONObject(resultMap));
             return;
         }
 
         // Obtain the arguments.
         amount = args.getString(0);
         if (amount == null) {
-            callbackContext.error("Amount is required.");
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("error", "Amount is required.");
+            resultMap.put("type", "plugin");
+            callbackContext.error(new JSONObject(resultMap));
+            return;
         }
 
         String creditCardNonce = args.getString(1);
         if (creditCardNonce == null) {
-            callbackContext.error("Credit card nonce is required.");
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("error", "Credit card nonce is required.");
+            resultMap.put("type", "plugin");
+            callbackContext.error(new JSONObject(resultMap));
+            return;
         }
 
         Intent intent = new Intent("net.justincredible.ThreeDSecureVerification");
@@ -189,27 +229,28 @@ public final class BraintreePlugin extends CordovaPlugin {
         }
 
         if (requestCode == DROP_IN_REQUEST) {
-
-            PaymentMethodNonce paymentMethodNonce = null;
-
-            if (resultCode == Activity.RESULT_OK) {
-                DropInResult result = intent.getParcelableExtra(DropInResult.EXTRA_DROP_IN_RESULT);
-                paymentMethodNonce = result.getPaymentMethodNonce();
-            }
-
-            this.handleDropInPaymentUiResult(resultCode, paymentMethodNonce);
+            this.handleDropInPaymentUiResult(resultCode, intent);
         }
         else if (requestCode == PAYMENT_BUTTON_REQUEST) {
-            //TODO
-            dropInUICallbackContext.error("Activity result handler for PAYMENT_BUTTON_REQUEST not implemented.");
+            //TODO implement
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("error", "Activity result handler for PAYMENT_BUTTON_REQUEST not implemented.");
+            resultMap.put("type", "plugin");
+            dropInUICallbackContext.error(new JSONObject(resultMap));
         }
         else if (requestCode == CUSTOM_REQUEST) {
-            dropInUICallbackContext.error("Activity result handler for CUSTOM_REQUEST not implemented.");
-            //TODO
+            //TODO implement
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("error", "Activity result handler for CUSTOM_REQUEST not implemented.");
+            resultMap.put("type", "plugin");
+            dropInUICallbackContext.error(new JSONObject(resultMap));
         }
         else if (requestCode == PAYPAL_REQUEST) {
-            dropInUICallbackContext.error("Activity result handler for PAYPAL_REQUEST not implemented.");
-            //TODO
+            //TODO implement
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("error", "Activity result handler for PAYPAL_REQUEST not implemented.");
+            resultMap.put("type", "plugin");
+            dropInUICallbackContext.error(new JSONObject(resultMap));
         }
         else if (requestCode == THREEDSECURE_REQUEST) {
             this.handleThreeDSecureVerificationResult(resultCode, intent.getExtras());
@@ -252,7 +293,10 @@ public final class BraintreePlugin extends CordovaPlugin {
 
             String error = intentExtras.getString("error");
 
-            dropInUICallbackContext.error(error);
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("error", error);
+            resultMap.put("type", "braintree");
+            dropInUICallbackContext.error(new JSONObject(resultMap));
             dropInUICallbackContext = null;
         }
     }
@@ -261,30 +305,37 @@ public final class BraintreePlugin extends CordovaPlugin {
      * Helper used to handle the result of the drop-in payment UI.
      *
      * @param resultCode Indicates the result of the UI.
-     * @param paymentMethodNonce Contains information about a successful payment.
+     * @param Intent Contains information about payment.
      */
-    private void handleDropInPaymentUiResult(int resultCode, PaymentMethodNonce paymentMethodNonce) {
+    private void handleDropInPaymentUiResult(int resultCode, Intent intent) {
         if (dropInUICallbackContext == null) {
             return;
         }
 
-        if (resultCode == Activity.RESULT_CANCELED) {
-            Map<String, Object> resultMap = new HashMap<String, Object>();
-            resultMap.put("userCancelled", true);
+        if (resultCode == Activity.RESULT_OK) {
+            DropInResult result = intent.getParcelableExtra(DropInResult.EXTRA_DROP_IN_RESULT);
+            PaymentMethodNonce paymentMethodNonce = result.getPaymentMethodNonce();
+
+            Map<String, Object> resultMap = this.getPaymentUINonceResult(paymentMethodNonce);
+
             dropInUICallbackContext.success(new JSONObject(resultMap));
             dropInUICallbackContext = null;
-            return;
-        }
+        } else if (resultCode == Activity.RESULT_CANCELED) {
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("userCancelled", true);
 
-        if (paymentMethodNonce == null) {
-            dropInUICallbackContext.error("Result was not RESULT_CANCELED, but no PaymentMethodNonce was returned from the Braintree SDK.");
+            dropInUICallbackContext.success(new JSONObject(resultMap));
             dropInUICallbackContext = null;
-            return;
-        }
+        } else {
+            String error = ((Exception) intent.getSerializableExtra(DropInActivity.EXTRA_ERROR)).getMessage();
 
-        Map<String, Object> resultMap = this.getPaymentUINonceResult(paymentMethodNonce);
-        dropInUICallbackContext.success(new JSONObject(resultMap));
-        dropInUICallbackContext = null;
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("error", error);
+            resultMap.put("type", "braintree");
+
+            dropInUICallbackContext.error(new JSONObject(resultMap));
+            dropInUICallbackContext = null;
+        }
     }
 
     /**
