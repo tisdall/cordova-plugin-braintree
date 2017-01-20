@@ -115,7 +115,7 @@ declare module BraintreePlugin {
     }
 
     interface BraintreePluginError {
-        type: string;
+        type: 'braintree' | 'plugin';
         message: string;
     }
 

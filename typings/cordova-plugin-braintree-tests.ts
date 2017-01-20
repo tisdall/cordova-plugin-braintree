@@ -11,7 +11,7 @@ const paymentUIOptions: BraintreePlugin.PaymentUIOptions = {
 BraintreePlugin.presentDropInPaymentUI();
 BraintreePlugin.presentDropInPaymentUI(paymentUIOptions);
 BraintreePlugin.presentDropInPaymentUI(paymentUIOptions, (result: BraintreePlugin.PaymentUIResult) => {});
-BraintreePlugin.presentDropInPaymentUI(paymentUIOptions, (result: BraintreePlugin.PaymentUIResult) => {}, () => {});
+BraintreePlugin.presentDropInPaymentUI(paymentUIOptions, (result: BraintreePlugin.PaymentUIResult) => {}, (error: BraintreePlugin.BraintreePluginError) => {});
 
 const applePayOptions: BraintreePlugin.ApplePayOptions = {
     merchantId: "com.braintree.merchant.demoapp",
@@ -28,4 +28,4 @@ const threeDVerificationOptions: BraintreePlugin.ThreeDSecureVerificationOptions
 };
 BraintreePlugin.presentThreeDSecureVerification(threeDVerificationOptions);
 BraintreePlugin.presentThreeDSecureVerification(threeDVerificationOptions, (result: BraintreePlugin.ThreeDSecureVerificationDetails) => {});
-BraintreePlugin.presentThreeDSecureVerification(threeDVerificationOptions, (result: BraintreePlugin.ThreeDSecureVerificationDetails) => {}, () => {});
+BraintreePlugin.presentThreeDSecureVerification(threeDVerificationOptions, (result: BraintreePlugin.ThreeDSecureVerificationDetails) => {}, (error: BraintreePlugin.BraintreePluginError) => {});
