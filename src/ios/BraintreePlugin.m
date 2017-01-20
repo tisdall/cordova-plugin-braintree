@@ -333,22 +333,14 @@ NSString *countryCode;
                                      amount:[NSDecimalNumber decimalNumberWithString:amount]
                                  completion:^(BTThreeDSecureCardNonce *card, NSError *error) {
                                      if (error && !alreadyVerified) {
-                                         NSLog(@"Error %@", error.localizedDescription);
-
                                          alreadyVerified = YES;
 
                                          [self errorOccurredWithCallbackId:threeDSecureVerificationCallbackId AndError:error];
                                      } else if (!card && !alreadyVerified) {
-                                         NSLog(@"User cancelled");
-
                                          alreadyVerified = YES;
 
                                          [self userCancelledWithCallbackId:threeDSecureVerificationCallbackId];
                                      } else if (!alreadyVerified) {
-                                         NSLog(@"3D Secure Card nonce: %@",card.nonce);
-                                         NSLog(@"Is liability shifted? %d", card.liabilityShifted);
-                                         NSLog(@"Is liability shift possible? %d", card.liabilityShiftPossible);
-
                                          alreadyVerified = YES;
 
                                          NSDictionary *dictionary = @{
