@@ -79,6 +79,12 @@
         <framework src="lib/ios/BraintreeApplePay.framework" custom="true" embed="true" weak="false" />
         <framework src="lib/ios/Braintree3DSecure.framework" custom="true" embed="true" weak="false" />
 
+		<config-file target="*-Info.plist" parent="NSCameraUsageDescription">
+			<string>This lets you scan cards.</string>
+		</config-file>
+		<config-file target="*-Info.plist" parent="NSPhotoLibraryUsageDescription">
+			<string>This lets you scan cards.</string>
+		</config-file>
     </platform>
 
 </plugin>
