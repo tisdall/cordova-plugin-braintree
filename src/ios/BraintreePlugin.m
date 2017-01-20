@@ -64,7 +64,7 @@ NSString *countryCode;
     if ([command.arguments count] != 1) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                             messageAsDictionary:@{
-                                                  @"error": @"A token is required.",
+                                                  @"message": @"A token is required.",
                                                   @"type": @"plugin"
                                                   }];
 
@@ -78,7 +78,7 @@ NSString *countryCode;
     if (!self.token) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                             messageAsDictionary:@{
-                                                  @"error": @"A token is required.",
+                                                  @"message": @"A token is required.",
                                                   @"type": @"plugin"
                                                   }];
 
@@ -91,7 +91,7 @@ NSString *countryCode;
     if (!self.braintreeClient) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                             messageAsDictionary:@{
-                                                  @"error": @"The Braintree client failed to initialize.",
+                                                  @"message": @"The Braintree client failed to initialize.",
                                                   @"type": @"plugin"
                                                   }];
 
@@ -114,7 +114,7 @@ NSString *countryCode;
     if (!self.braintreeClient) {
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                              messageAsDictionary:@{
-                                                                   @"error": @"The Braintree client must first be initialized via BraintreePlugin.initialize(token)",
+                                                                   @"message": @"The Braintree client must first be initialized via BraintreePlugin.initialize(token)",
                                                                    @"type": @"plugin"
                                                                    }];
 
@@ -125,7 +125,7 @@ NSString *countryCode;
     if ([command.arguments count] != 3) {
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                              messageAsDictionary:@{
-                                                                   @"error": @"Merchant id, Currency code and Country code are required.",
+                                                                   @"message": @"Merchant id, Currency code and Country code are required.",
                                                                    @"type": @"plugin"
                                                                    }];
 
@@ -152,7 +152,7 @@ NSString *countryCode;
 
 - (void)errorOccurredWithCallbackId:(NSString *) callbackId AndError:(NSError *) error {
     NSDictionary *dictionary = @{
-                                 @"error": error.localizedDescription,
+                                 @"message": error.localizedDescription,
                                  @"type": @"braintree"
                                  };
 
@@ -169,7 +169,7 @@ NSString *countryCode;
     if (!self.braintreeClient) {
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                              messageAsDictionary:@{
-                                                                   @"error": @"The Braintree client must first be initialized via BraintreePlugin.initialize(token)",
+                                                                   @"message": @"The Braintree client must first be initialized via BraintreePlugin.initialize(token)",
                                                                    @"type": @"plugin"
                                                                    }];
 
@@ -181,7 +181,7 @@ NSString *countryCode;
     if ([command.arguments count] < 1) {
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                              messageAsDictionary:@{
-                                                                   @"error": @"Amount required.",
+                                                                   @"message": @"Amount required.",
                                                                    @"type": @"plugin"
                                                                    }];
 
@@ -198,7 +198,7 @@ NSString *countryCode;
     if (!amount) {
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                              messageAsDictionary:@{
-                                                                   @"error": @"Amount required.",
+                                                                   @"message": @"Amount required.",
                                                                    @"type": @"plugin"
                                                                    }];
 
@@ -273,7 +273,7 @@ NSString *countryCode;
     if (!self.braintreeClient) {
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                              messageAsDictionary:@{
-                                                                   @"error": @"The Braintree client must first be initialized via BraintreePlugin.initialize(token)",
+                                                                   @"message": @"The Braintree client must first be initialized via BraintreePlugin.initialize(token)",
                                                                    @"type": @"plugin"
                                                                    }];
 
@@ -285,7 +285,7 @@ NSString *countryCode;
     if ([command.arguments count] < 2) {
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                              messageAsDictionary:@{
-                                                                   @"error": @"Credit card nonce and amount required.",
+                                                                   @"message": @"Credit card nonce and amount required.",
                                                                    @"type": @"plugin"
                                                                    }];
 
@@ -301,7 +301,7 @@ NSString *countryCode;
     if (!amount) {
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                              messageAsDictionary:@{
-                                                                   @"error": @"Amount is required.",
+                                                                   @"message": @"Amount is required.",
                                                                    @"type": @"plugin"
                                                                    }];
 
@@ -315,7 +315,7 @@ NSString *countryCode;
     if (!creditCardNonce) {
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                              messageAsDictionary:@{
-                                                                   @"error": @"Credit card nonce is required.",
+                                                                   @"message": @"Credit card nonce is required.",
                                                                    @"type": @"plugin"
                                                                    }];
 
@@ -389,7 +389,7 @@ NSString *countryCode;
             // Tokenization failed. Check `error` for the cause of the failure.
             CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                                  messageAsDictionary:@{
-                                                                       @"error": error.localizedDescription,
+                                                                       @"message": error.localizedDescription,
                                                                        @"type": @"braintree"
                                                                        }];
 
@@ -560,3 +560,4 @@ NSString *countryCode;
 }
 
 @end
+

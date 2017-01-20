@@ -53,7 +53,7 @@ public final class BraintreePlugin extends CordovaPlugin {
             }
             catch (Exception exception) {
                 Map<String, Object> resultMap = new HashMap<String, Object>();
-                resultMap.put("error", "BraintreePlugin uncaught exception: " + exception.getMessage());
+                resultMap.put("message", "BraintreePlugin uncaught exception: " + exception.getMessage());
                 resultMap.put("type", "plugin");
                 callbackContext.error(new JSONObject(resultMap));
             }
@@ -67,7 +67,7 @@ public final class BraintreePlugin extends CordovaPlugin {
             }
             catch (Exception exception) {
                 Map<String, Object> resultMap = new HashMap<String, Object>();
-                resultMap.put("error", "BraintreePlugin uncaught exception: " + exception.getMessage());
+                resultMap.put("message", "BraintreePlugin uncaught exception: " + exception.getMessage());
                 resultMap.put("type", "plugin");
                 callbackContext.error(new JSONObject(resultMap));
             }
@@ -81,7 +81,7 @@ public final class BraintreePlugin extends CordovaPlugin {
             }
             catch (Exception exception) {
                 Map<String, Object> resultMap = new HashMap<String, Object>();
-                resultMap.put("error", "BraintreePlugin uncaught exception: " + exception.getMessage());
+                resultMap.put("message", "BraintreePlugin uncaught exception: " + exception.getMessage());
                 resultMap.put("type", "plugin");
                 callbackContext.error(new JSONObject(resultMap));
             }
@@ -107,7 +107,7 @@ public final class BraintreePlugin extends CordovaPlugin {
 
         if (token == null || token.equals("")) {
             Map<String, Object> resultMap = new HashMap<String, Object>();
-            resultMap.put("error", "A token is required");
+            resultMap.put("message", "A token is required");
             resultMap.put("type", "plugin");
             callbackContext.error(new JSONObject(resultMap));
             return;
@@ -117,7 +117,7 @@ public final class BraintreePlugin extends CordovaPlugin {
 
         if (dropInRequest == null) {
             Map<String, Object> resultMap = new HashMap<String, Object>();
-            resultMap.put("error", "The Braintree client failed to initialize.");
+            resultMap.put("message", "The Braintree client failed to initialize.");
             resultMap.put("type", "plugin");
             callbackContext.error(new JSONObject(resultMap));
             return;
@@ -136,7 +136,7 @@ public final class BraintreePlugin extends CordovaPlugin {
         // Ensure the client has been initialized.
         if (dropInRequest == null) {
             Map<String, Object> resultMap = new HashMap<String, Object>();
-            resultMap.put("error", "The Braintree client must first be initialized via BraintreePlugin.initialize(token)");
+            resultMap.put("message", "The Braintree client must first be initialized via BraintreePlugin.initialize(token)");
             resultMap.put("type", "plugin");
             callbackContext.error(new JSONObject(resultMap));
             return;
@@ -145,7 +145,7 @@ public final class BraintreePlugin extends CordovaPlugin {
         // Ensure we have the correct number of arguments.
         if (args.length() < 1) {
             Map<String, Object> resultMap = new HashMap<String, Object>();
-            resultMap.put("error", "Amount is required");
+            resultMap.put("message", "Amount is required");
             resultMap.put("type", "plugin");
             callbackContext.error(new JSONObject(resultMap));
             return;
@@ -156,7 +156,7 @@ public final class BraintreePlugin extends CordovaPlugin {
 
         if (amount == null) {
             Map<String, Object> resultMap = new HashMap<String, Object>();
-            resultMap.put("error", "Amount is required");
+            resultMap.put("message", "Amount is required");
             resultMap.put("type", "plugin");
             callbackContext.error(new JSONObject(resultMap));
             return;
@@ -175,7 +175,7 @@ public final class BraintreePlugin extends CordovaPlugin {
         // Ensure the client has been initialized.
         if (dropInRequest == null) {
             Map<String, Object> resultMap = new HashMap<String, Object>();
-            resultMap.put("error", "The Braintree client must first be initialized via BraintreePlugin.initialize(token)");
+            resultMap.put("message", "The Braintree client must first be initialized via BraintreePlugin.initialize(token)");
             resultMap.put("type", "plugin");
             callbackContext.error(new JSONObject(resultMap));
             return;
@@ -184,7 +184,7 @@ public final class BraintreePlugin extends CordovaPlugin {
         // Ensure we have the correct number of arguments.
         if (args.length() < 2) {
             Map<String, Object> resultMap = new HashMap<String, Object>();
-            resultMap.put("error", "Credit card nonce and amount required.");
+            resultMap.put("message", "Credit card nonce and amount required.");
             resultMap.put("type", "plugin");
             callbackContext.error(new JSONObject(resultMap));
             return;
@@ -194,7 +194,7 @@ public final class BraintreePlugin extends CordovaPlugin {
         amount = args.getString(0);
         if (amount == null) {
             Map<String, Object> resultMap = new HashMap<String, Object>();
-            resultMap.put("error", "Amount is required.");
+            resultMap.put("message", "Amount is required.");
             resultMap.put("type", "plugin");
             callbackContext.error(new JSONObject(resultMap));
             return;
@@ -203,7 +203,7 @@ public final class BraintreePlugin extends CordovaPlugin {
         String creditCardNonce = args.getString(1);
         if (creditCardNonce == null) {
             Map<String, Object> resultMap = new HashMap<String, Object>();
-            resultMap.put("error", "Credit card nonce is required.");
+            resultMap.put("message", "Credit card nonce is required.");
             resultMap.put("type", "plugin");
             callbackContext.error(new JSONObject(resultMap));
             return;
@@ -234,21 +234,21 @@ public final class BraintreePlugin extends CordovaPlugin {
         else if (requestCode == PAYMENT_BUTTON_REQUEST) {
             //TODO implement
             Map<String, Object> resultMap = new HashMap<String, Object>();
-            resultMap.put("error", "Activity result handler for PAYMENT_BUTTON_REQUEST not implemented.");
+            resultMap.put("message", "Activity result handler for PAYMENT_BUTTON_REQUEST not implemented.");
             resultMap.put("type", "plugin");
             dropInUICallbackContext.error(new JSONObject(resultMap));
         }
         else if (requestCode == CUSTOM_REQUEST) {
             //TODO implement
             Map<String, Object> resultMap = new HashMap<String, Object>();
-            resultMap.put("error", "Activity result handler for CUSTOM_REQUEST not implemented.");
+            resultMap.put("message", "Activity result handler for CUSTOM_REQUEST not implemented.");
             resultMap.put("type", "plugin");
             dropInUICallbackContext.error(new JSONObject(resultMap));
         }
         else if (requestCode == PAYPAL_REQUEST) {
             //TODO implement
             Map<String, Object> resultMap = new HashMap<String, Object>();
-            resultMap.put("error", "Activity result handler for PAYPAL_REQUEST not implemented.");
+            resultMap.put("message", "Activity result handler for PAYPAL_REQUEST not implemented.");
             resultMap.put("type", "plugin");
             dropInUICallbackContext.error(new JSONObject(resultMap));
         }
@@ -294,7 +294,7 @@ public final class BraintreePlugin extends CordovaPlugin {
             String error = intentExtras.getString("error");
 
             Map<String, Object> resultMap = new HashMap<String, Object>();
-            resultMap.put("error", error);
+            resultMap.put("message", error);
             resultMap.put("type", "braintree");
             dropInUICallbackContext.error(new JSONObject(resultMap));
             dropInUICallbackContext = null;
@@ -330,7 +330,7 @@ public final class BraintreePlugin extends CordovaPlugin {
             String error = ((Exception) intent.getSerializableExtra(DropInActivity.EXTRA_ERROR)).getMessage();
 
             Map<String, Object> resultMap = new HashMap<String, Object>();
-            resultMap.put("error", error);
+            resultMap.put("message", error);
             resultMap.put("type", "braintree");
 
             dropInUICallbackContext.error(new JSONObject(resultMap));

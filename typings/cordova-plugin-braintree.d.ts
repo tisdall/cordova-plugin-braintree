@@ -14,9 +14,9 @@ declare module BraintreePlugin {
          *
          * @param token The client token or tokenization key to use with the Braintree client.
          * @param successCallback The success callback for this asynchronous function.
-         * @param failureCallback The failure callback for this asynchronous function; receives an error string.
+         * @param failureCallback The failure callback for this asynchronous function; receives a BraintreePluginError object.
          */
-        initialize(token: string, successCallback?: () => void, failureCallback?: (error: string) => void): void;
+        initialize(token: string, successCallback?: () => void, failureCallback?: (error: BraintreePluginError) => void): void;
 
         /**
          * Shows Braintree's Apple Pay UI.
@@ -32,18 +32,18 @@ declare module BraintreePlugin {
          *
          * @param {object} options - The options used to control the drop-in payment UI.
          * @param successCallback The success callback for this asynchronous function; receives a result object.
-         * @param failureCallback The failure callback for this asynchronous function; receives an error string.
+         * @param failureCallback The failure callback for this asynchronous function; receives a BraintreePluginError object.
          */
-        presentDropInPaymentUI(options?: PaymentUIOptions, successCallback?: (result: PaymentUIResult) => void, failureCallback?: (error: string) => void): void;
+        presentDropInPaymentUI(options?: PaymentUIOptions, successCallback?: (result: PaymentUIResult) => void, failureCallback?: (error: BraintreePluginError) => void): void;
 
         /**
          * Shows Braintree's ThreeDSecure verification.
          *
          * @param {object} options - The options used to control ThreeDSecure verification.
          * @param successCallback The success callback for this asynchronous function; receives a result object.
-         * @param failureCallback The failure callback for this asynchronous function; receives an error string.
+         * @param failureCallback The failure callback for this asynchronous function; receives a BraintreePluginError object.
          */
-        presentThreeDSecureVerification(options: ThreeDSecureVerificationOptions, successCallback?: (result: ThreeDSecureVerificationDetails) => void, failureCallback?: (error: string) => void): void;
+        presentThreeDSecureVerification(options: ThreeDSecureVerificationOptions, successCallback?: (result: ThreeDSecureVerificationDetails) => void, failureCallback?: (error: BraintreePluginError) => void): void;
     }
 
     /**
@@ -112,6 +112,11 @@ declare module BraintreePlugin {
     interface ThreeDSecureVerificationDetails {
         nonce: string;
         verificationDetails: ThreeDSecureVerificationDetailsData;
+    }
+
+    interface BraintreePluginError {
+        type: string;
+        message: string;
     }
 
     /**
