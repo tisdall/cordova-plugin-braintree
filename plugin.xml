@@ -64,6 +64,7 @@
         <header-file src="src/ios/BraintreePlugin.h" />
         <source-file src="src/ios/BraintreePlugin.m" />
 
+        <framework src="lib/ios/CardIO.framework" custom="true" embed="true" weak="false" />
         <framework src="lib/ios/PayPalUtils.framework" custom="true" embed="true" weak="false" />
         <framework src="lib/ios/PayPalDataCollector.framework" custom="true" embed="true" weak="false" />
         <framework src="lib/ios/PayPalOneTouch.framework" custom="true" embed="true" weak="false" />
