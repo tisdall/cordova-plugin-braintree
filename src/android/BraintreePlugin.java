@@ -265,33 +265,25 @@ public final class BraintreePlugin extends CordovaPlugin {
      */
     private void handleThreeDSecureVerificationResult(int resultCode, Bundle intentExtras) {
         if (resultCode == Activity.RESULT_OK) {
-            Log.d(TAG, "ThreeDSecureVerification OK");
-
-            String threeDSecureNonce = intentExtras.getString("threeDSecureNonce");
-            boolean liabilityShifted = intentExtras.getBoolean("liabilityShifted");
-            boolean liabilityShiftPossible = intentExtras.getBoolean("liabilityShiftPossible");
-
             Map<String, Object> resultMap = new HashMap<String, Object>();
-            resultMap.put("nonce", threeDSecureNonce);
+            resultMap.put("nonce", intentExtras.getString("threeDSecureNonce"));
             Map<String, Object> verificationDetails = new HashMap<String, Object>();
-            verificationDetails.put("liabilityShifted", liabilityShifted);
-            verificationDetails.put("liabilityShiftPossible", liabilityShiftPossible);
+            verificationDetails.put("liabilityShifted", intentExtras.getBoolean("liabilityShifted"));
+            verificationDetails.put("liabilityShiftPossible", intentExtras.getBoolean("liabilityShiftPossible"));
             resultMap.put("verificationDetails", verificationDetails);
 
             dropInUICallbackContext.success(new JSONObject(resultMap));
             dropInUICallbackContext = null;
         } else if (resultCode == Activity.RESULT_CANCELED && intentExtras.getBoolean("userCancelled")) {
-            Log.w(TAG, "User cancelled");
-
             Map<String, Object> resultMap = new HashMap<String, Object>();
             resultMap.put("userCancelled", true);
 
             dropInUICallbackContext.success(new JSONObject(resultMap));
             dropInUICallbackContext = null;
         } else {
-            Log.e(TAG, "ThreeDSecureVerification error");
-
             String error = intentExtras.getString("error");
+
+            Log.e(TAG, "ThreeDSecureVerification error: " + error);
 
             Map<String, Object> resultMap = new HashMap<String, Object>();
             resultMap.put("message", error);
@@ -305,7 +297,7 @@ public final class BraintreePlugin extends CordovaPlugin {
      * Helper used to handle the result of the drop-in payment UI.
      *
      * @param resultCode Indicates the result of the UI.
-     * @param Intent Contains information about payment.
+     * @param intent Contains information about payment.
      */
     private void handleDropInPaymentUiResult(int resultCode, Intent intent) {
         if (dropInUICallbackContext == null) {
@@ -328,6 +320,8 @@ public final class BraintreePlugin extends CordovaPlugin {
             dropInUICallbackContext = null;
         } else {
             String error = ((Exception) intent.getSerializableExtra(DropInActivity.EXTRA_ERROR)).getMessage();
+
+            Log.e(TAG, "DropInPayment error: " + error);
 
             Map<String, Object> resultMap = new HashMap<String, Object>();
             resultMap.put("message", error);
