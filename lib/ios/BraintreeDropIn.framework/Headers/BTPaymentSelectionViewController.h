@@ -6,14 +6,6 @@
 #import <BraintreeUIKit/BraintreeUIKit.h>
 #endif
 
-#if __has_include("BraintreeApplePay.h")
-#define __BT_APPLE_PAY 
-#import "BraintreeApplePay.h"
-#elif __has_include(<BraintreeApplePay/BraintreeApplePay.h>)
-#define __BT_APPLE_PAY
-#import <BraintreeApplePay/BraintreeApplePay.h>
-#endif
-
 @class BTPaymentMethodNonce;
 
 @protocol BTPaymentSelectionViewControllerDelegate;
@@ -28,6 +20,9 @@
 /// The delegate
 @property (nonatomic, weak) id<BTPaymentSelectionViewControllerDelegate> delegate;
 
+/// The desired height when rendering the view in a sheet.
+- (float)sheetHeight;
+
 @end
 
 @protocol BTPaymentSelectionViewControllerDelegate <NSObject>
@@ -38,6 +33,11 @@
 /// @param nonce The BTPaymentMethodNonce of the selected payment method. @note This can be `nil` in the case of Apple Pay.
 /// @param error The error that occured during tokenization of a new payment method.
 - (void) selectionCompletedWithPaymentMethodType:(BTUIKPaymentOptionType) type nonce:(BTPaymentMethodNonce *)nonce error:(NSError *)error;
+
+/// Called on the delegate when the value return by BTPaymentSelectionViewController:sheetHeight has changed
+///
+/// @param sender The BTPaymentSelectionViewController that changed
+- (void) sheetHeightDidChange:(BTPaymentSelectionViewController *) sender;
 
 @end
 

@@ -3,14 +3,14 @@
 
 The iOS frameworks were built from the [Braintree SDK repo](https://github.com/braintree/braintree_ios ) on GitHub using Carthage.
 
-The framework bundles in this directory were built from version 4.7.3.
+The framework bundles in this directory were built from version 4.7.4.
 
 To rebuild the frameworks for future versions, follow these steps:
 
 ```
 mkdir /tmp/braintree-sdk
 cd /tmp/braintree-sdk
-echo 'github "braintree/braintree_ios"' > Cartfile
+echo 'github "card-io/card.io-iOS-source"' > Cartfile
 echo 'github "braintree/braintree-ios-drop-in"' >> Cartfile
 carthage update
 ```
