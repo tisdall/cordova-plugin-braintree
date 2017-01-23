@@ -4,21 +4,28 @@ BraintreePlugin.initialize("a");
 BraintreePlugin.initialize("a", () => {});
 BraintreePlugin.initialize("a", () => {}, () => {});
 
-var paymentUIOptions: BraintreePlugin.PaymentUIOptions = {
+const paymentUIOptions: BraintreePlugin.PaymentUIOptions = {
     amount: "49.99",
     primaryDescription: "Your Item"
 };
-
 BraintreePlugin.presentDropInPaymentUI();
 BraintreePlugin.presentDropInPaymentUI(paymentUIOptions);
 BraintreePlugin.presentDropInPaymentUI(paymentUIOptions, (result: BraintreePlugin.PaymentUIResult) => {});
-BraintreePlugin.presentDropInPaymentUI(paymentUIOptions, (result: BraintreePlugin.PaymentUIResult) => {}, () => {});
+BraintreePlugin.presentDropInPaymentUI(paymentUIOptions, (result: BraintreePlugin.PaymentUIResult) => {}, (error: BraintreePlugin.BraintreePluginError) => {});
 
-var applePayOptions: BraintreePlugin.ApplePayOptions = {
+const applePayOptions: BraintreePlugin.ApplePayOptions = {
     merchantId: "com.braintree.merchant.demoapp",
-    currency: "USD",
-    country: "US"
+    currencyCode: "USD",
+    countryCode: "US"
 };
 BraintreePlugin.setupApplePay(applePayOptions);
 BraintreePlugin.setupApplePay(applePayOptions, () => {});
 BraintreePlugin.setupApplePay(applePayOptions, () => {}, () => {});
+
+const threeDVerificationOptions: BraintreePlugin.ThreeDSecureVerificationOptions = {
+    amount: "49.99",
+    creditCardNonce: "123-456-789"
+};
+BraintreePlugin.presentThreeDSecureVerification(threeDVerificationOptions);
+BraintreePlugin.presentThreeDSecureVerification(threeDVerificationOptions, (result: BraintreePlugin.ThreeDSecureVerificationDetails) => {});
+BraintreePlugin.presentThreeDSecureVerification(threeDVerificationOptions, (result: BraintreePlugin.ThreeDSecureVerificationDetails) => {}, (error: BraintreePlugin.BraintreePluginError) => {});

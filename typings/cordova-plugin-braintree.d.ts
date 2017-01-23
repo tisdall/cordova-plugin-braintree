@@ -9,18 +9,19 @@ declare module BraintreePlugin {
 
         /**
          * Used to initialize the Braintree client.
-         * 
+         *
          * The client must be initialized before other methods can be used.
-         * 
+         *
          * @param token The client token or tokenization key to use with the Braintree client.
          * @param successCallback The success callback for this asynchronous function.
-         * @param failureCallback The failure callback for this asynchronous function; receives an error string.
+         * @param failureCallback The failure callback for this asynchronous function; receives a BraintreePluginError object.
          */
-        initialize(token: string, successCallback?: () => void, failureCallback?: (error: string) => void): void;
+        initialize(token: string, successCallback?: () => void, failureCallback?: (error: BraintreePluginError) => void): void;
 
         /**
-         * Shows Braintree's drop-in payment UI.
-         * 
+         * Shows Braintree's Apple Pay UI.
+         *
+         * @param {object} options - The options used to control the Apple Pay UI.
          * @param successCallback The success callback for this asynchronous function; receives a result object.
          * @param failureCallback The failure callback for this asynchronous function; receives an error string.
          */
@@ -28,11 +29,21 @@ declare module BraintreePlugin {
 
         /**
          * Shows Braintree's drop-in payment UI.
-         * 
+         *
+         * @param {object} options - The options used to control the drop-in payment UI.
          * @param successCallback The success callback for this asynchronous function; receives a result object.
-         * @param failureCallback The failure callback for this asynchronous function; receives an error string.
+         * @param failureCallback The failure callback for this asynchronous function; receives a BraintreePluginError object.
          */
-        presentDropInPaymentUI(options?: PaymentUIOptions, successCallback?: (result: PaymentUIResult) => void, failureCallback?: (error: string) => void): void;
+        presentDropInPaymentUI(options?: PaymentUIOptions, successCallback?: (result: PaymentUIResult) => void, failureCallback?: (error: BraintreePluginError) => void): void;
+
+        /**
+         * Shows Braintree's ThreeDSecure verification.
+         *
+         * @param {object} options - The options used to control ThreeDSecure verification.
+         * @param successCallback The success callback for this asynchronous function; receives a result object.
+         * @param failureCallback The failure callback for this asynchronous function; receives a BraintreePluginError object.
+         */
+        presentThreeDSecureVerification(options: ThreeDSecureVerificationOptions, successCallback?: (result: ThreeDSecureVerificationDetails) => void, failureCallback?: (error: BraintreePluginError) => void): void;
     }
 
     /**
@@ -43,12 +54,12 @@ declare module BraintreePlugin {
          * Apple Merchant ID can be obtained from Apple.
          */
         merchantId: string;
-        
+
         /**
          * 3 letter currency code ISO 4217
          */
         currencyCode: string;
-        
+
         /**
          * 2 letter country code ISO 3166-1
          */
@@ -73,6 +84,39 @@ declare module BraintreePlugin {
          * Defaults to empty string.
          */
         primaryDescription?: string;
+    }
+
+    /**
+     * Options for the presentThreeDSecureVerification method.
+     */
+    interface ThreeDSecureVerificationOptions {
+
+        /**
+         * The amount of the transaction to show in the drop-in UI on the
+         * summary row as well as the call to action button.
+         * Defaults to 0.0.
+         */
+        amount?: string;
+
+        /**
+         * The credit card nonce obtained from presentDropInPaymentUI.
+         */
+        creditCardNonce?: string;
+    }
+
+    interface ThreeDSecureVerificationDetailsData {
+        liabilityShiftPossible: boolean;
+        liabilityShifted: boolean;
+    }
+
+    interface ThreeDSecureVerificationDetails {
+        nonce: string;
+        verificationDetails: ThreeDSecureVerificationDetailsData;
+    }
+
+    interface BraintreePluginError {
+        type: 'braintree' | 'plugin';
+        message: string;
     }
 
     /**
@@ -113,9 +157,9 @@ declare module BraintreePlugin {
 
             /**
              * An enumerated value used to indicate the type of credit card used.
-             * 
+             *
              * Can be one of the following values:
-             * 
+             *
              * BTCardNetworkUnknown
              * BTCardNetworkAMEX
              * BTCardNetworkDinersClub

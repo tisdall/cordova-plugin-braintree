@@ -33,14 +33,14 @@
          annotation:(id)annotation {
     NSString *bundle_id = [NSBundle mainBundle].bundleIdentifier;
     bundle_id = [bundle_id stringByAppendingString:@".payments"];
-    
+
     if ([url.scheme localizedCaseInsensitiveCompare:bundle_id] == NSOrderedSame) {
         return [BTAppSwitch handleOpenURL:url sourceApplication:sourceApplication];
     }
-    
+
     // all plugins will get the notification, and their handlers will be called
     [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:CDVPluginHandleOpenURLNotification object:url]];
-    
+
     return NO;
 }
 
@@ -58,126 +58,179 @@ NSString *countryCode;
 #pragma mark - Cordova commands
 
 - (void)initialize:(CDVInvokedUrlCommand *)command {
-    
+    CDVPluginResult *pluginResult;
+
     // Ensure we have the correct number of arguments.
     if ([command.arguments count] != 1) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"A token is required."];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                            messageAsDictionary:@{
+                                                  @"message": @"A token is required.",
+                                                  @"type": @"plugin"
+                                                  }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
-    
+
     // Obtain the arguments.
     self.token = [command.arguments objectAtIndex:0];
-    
+
     if (!self.token) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"A token is required."];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                            messageAsDictionary:@{
+                                                  @"message": @"A token is required.",
+                                                  @"type": @"plugin"
+                                                  }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
-    
+
     self.braintreeClient = [[BTAPIClient alloc] initWithAuthorization:self.token];
-    
+
     if (!self.braintreeClient) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"The Braintree client failed to initialize."];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                            messageAsDictionary:@{
+                                                  @"message": @"The Braintree client failed to initialize.",
+                                                  @"type": @"plugin"
+                                                  }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
-    
+
     NSString *bundle_id = [NSBundle mainBundle].bundleIdentifier;
     bundle_id = [bundle_id stringByAppendingString:@".payments"];
-    
+
     [BTAppSwitch setReturnURLScheme:bundle_id];
-    
-    CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)setupApplePay:(CDVInvokedUrlCommand *)command {
-    
+
     // Ensure the client has been initialized.
     if (!self.braintreeClient) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"The Braintree client must first be initialized via BraintreePlugin.initialize(token)"];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                             messageAsDictionary:@{
+                                                                   @"message": @"The Braintree client must first be initialized via BraintreePlugin.initialize(token)",
+                                                                   @"type": @"plugin"
+                                                                   }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
-    
+
     if ([command.arguments count] != 3) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Merchant id, Currency code and Country code are required."];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                             messageAsDictionary:@{
+                                                                   @"message": @"Merchant id, Currency code and Country code are required.",
+                                                                   @"type": @"plugin"
+                                                                   }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
-    
+
     applePayMerchantID = [command.arguments objectAtIndex:0];
     currencyCode = [command.arguments objectAtIndex:1];
     countryCode = [command.arguments objectAtIndex:2];
-    
+
     applePayInited = YES;
 }
 
-- (void)userCancelled {
+- (void)userCancelledWithCallbackId:(NSString *) callbackId {
     NSDictionary *dictionary = @{ @"userCancelled": @YES };
-    
+
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                                   messageAsDictionary:dictionary];
-    
-    [self.viewController dismissViewControllerAnimated:YES completion:nil];
-    
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
-    dropInUIcallbackId = nil;
+
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+    callbackId = nil;
+}
+
+- (void)errorOccurredWithCallbackId:(NSString *) callbackId AndError:(NSError *) error {
+    NSDictionary *dictionary = @{
+                                 @"message": error.localizedDescription,
+                                 @"type": @"braintree"
+                                 };
+
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                                  messageAsDictionary:dictionary];
+
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+    callbackId = nil;
 }
 
 - (void)presentDropInPaymentUI:(CDVInvokedUrlCommand *)command {
-    
+
     // Ensure the client has been initialized.
     if (!self.braintreeClient) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"The Braintree client must first be initialized via BraintreePlugin.initialize(token)"];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                             messageAsDictionary:@{
+                                                                   @"message": @"The Braintree client must first be initialized via BraintreePlugin.initialize(token)",
+                                                                   @"type": @"plugin"
+                                                                   }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
-    
+
     // Ensure we have the correct number of arguments.
     if ([command.arguments count] < 1) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"amount required."];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                             messageAsDictionary:@{
+                                                                   @"message": @"Amount required.",
+                                                                   @"type": @"plugin"
+                                                                   }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
-    
+
     // Obtain the arguments.
-    
     NSString* amount = (NSString *)[command.arguments objectAtIndex:0];
     if ([amount isKindOfClass:[NSNumber class]]) {
         amount = [(NSNumber *)amount stringValue];
     }
+
     if (!amount) {
-        CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"amount is required."];
-        [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                             messageAsDictionary:@{
+                                                                   @"message": @"Amount required.",
+                                                                   @"type": @"plugin"
+                                                                   }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
-    
+
     NSString* primaryDescription = [command.arguments objectAtIndex:1];
-    
+
     // Save off the Cordova callback ID so it can be used in the completion handlers.
     dropInUIcallbackId = command.callbackId;
-    
+
     /* Drop-IN 5.0 */
     BTDropInRequest *paymentRequest = [[BTDropInRequest alloc] init];
-    // 3DSecure fix
-    //paymentRequest.amount = amount;
+    paymentRequest.amount = amount;
     paymentRequest.applePayDisabled = !applePayInited;
-    
+
     BTDropInController *dropIn = [[BTDropInController alloc] initWithAuthorization:self.token request:paymentRequest handler:^(BTDropInController * _Nonnull controller, BTDropInResult * _Nullable result, NSError * _Nullable error) {
-        
+
+        [self.viewController dismissViewControllerAnimated:YES completion:nil];
+
         if (error != nil) {
-            // TODO handle this
-            NSLog(@"ERROR");
+            if (dropInUIcallbackId) {
+                NSLog(@"Error %@", error.localizedDescription);
+                [self errorOccurredWithCallbackId:dropInUIcallbackId AndError:error];
+            }
         } else if (result.cancelled) {
             if (dropInUIcallbackId) {
-                [self userCancelled];
+                [self userCancelledWithCallbackId:dropInUIcallbackId];
             }
         } else {
             if (dropInUIcallbackId) {
-                [self.viewController dismissViewControllerAnimated:YES completion:nil];
-                
                 if (result.paymentOptionType == BTUIKPaymentOptionTypeApplePay ) { // ApplePay
                     PKPaymentRequest *apPaymentRequest = [[PKPaymentRequest alloc] init];
                     apPaymentRequest.paymentSummaryItems = @[
@@ -187,89 +240,154 @@ NSString *countryCode;
                     apPaymentRequest.merchantCapabilities = PKMerchantCapability3DS;
                     apPaymentRequest.currencyCode = currencyCode;
                     apPaymentRequest.countryCode = countryCode;
-                    
+
                     apPaymentRequest.merchantIdentifier = applePayMerchantID;
-                    
+
                     PKPaymentAuthorizationViewController *viewController = [[PKPaymentAuthorizationViewController alloc] initWithPaymentRequest:apPaymentRequest];
                     viewController.delegate = self;
-                    
+
                     applePaySuccess = NO;
-                    
+
                     /* display ApplePay on the rootViewController */
                     UIViewController *rootViewController = [[[UIApplication sharedApplication] keyWindow] rootViewController];
-                    
+
                     [rootViewController presentViewController:viewController animated:YES completion:nil];
-                }
-                else if (result.paymentOptionType == BTUIKPaymentOptionTypePayPal) { // PayPal
-                    NSLog(@"%@", result.paymentMethod.nonce);
-                    
-                    // TODO Fix returned data
-                    NSDictionary *dictionary = @{@"nonce" : result.paymentMethod.nonce};
-                    
+                } else {
+                    NSDictionary *dictionary = [self getPaymentUINonceResult:result.paymentMethod];
+
                     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:dictionary];
-                    
+
                     [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
                     dropInUIcallbackId = nil;
-                }
-                else { // Credit card
-                    BTThreeDSecureDriver *threeDSecureDriver = [[BTThreeDSecureDriver alloc] initWithAPIClient:self.braintreeClient delegate:self];
-                    
-                    [threeDSecureDriver verifyCardWithNonce:result.paymentMethod.nonce
-                                                     amount:[NSDecimalNumber decimalNumberWithString:amount]
-                                                 completion:^(BTThreeDSecureCardNonce *card, NSError *error) {
-                                                     // TODO check user cancelled VS other errors
-                                                     if (error || !card) {
-                                                         NSLog(@"error: %@",error);
-                                                         [self userCancelled];
-                                                     } else {
-                                                         NSLog(@"3D Secure Card nonce: %@",card.nonce);
-                                                         NSLog(@"Is liability shifted? %d", card.liabilityShifted);
-                                                         NSLog(@"Is liability shift possible? %d", card.liabilityShiftPossible);
-                                                         NSLog(@"%@", card.nonce);
-                                                         
-                                                         // TODO Fix returned data
-                                                         //NSDictionary *dictionary = [self getPaymentUINonceResult:result.paymentMethod];
-                                                         NSDictionary *dictionary = @{@"nonce" : card.nonce};
-                                                         
-                                                         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:dictionary];
-                                                         
-                                                         [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
-                                                         dropInUIcallbackId = nil;
-                                                     }
-                                                 }];
                 }
             }
         }
     }];
-    
+
     [self.viewController presentViewController:dropIn animated:YES completion:nil];
+}
+
+- (void)presentThreeDSecureVerification:(CDVInvokedUrlCommand *)command {
+
+    // Ensure the client has been initialized.
+    if (!self.braintreeClient) {
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                             messageAsDictionary:@{
+                                                                   @"message": @"The Braintree client must first be initialized via BraintreePlugin.initialize(token)",
+                                                                   @"type": @"plugin"
+                                                                   }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        return;
+    }
+
+    // Ensure we have the correct number of arguments.
+    if ([command.arguments count] < 2) {
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                             messageAsDictionary:@{
+                                                                   @"message": @"Credit card nonce and amount required.",
+                                                                   @"type": @"plugin"
+                                                                   }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        return;
+    }
+
+    // Obtain the arguments.
+    NSString* amount = (NSString *)[command.arguments objectAtIndex:0];
+    if ([amount isKindOfClass:[NSNumber class]]) {
+        amount = [(NSNumber *)amount stringValue];
+    }
+    if (!amount) {
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                             messageAsDictionary:@{
+                                                                   @"message": @"Amount is required.",
+                                                                   @"type": @"plugin"
+                                                                   }];
+
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        return;
+    }
+
+    // Obtain the arguments.
+    NSString* creditCardNonce = (NSString *)[command.arguments objectAtIndex:1];
+    if (!creditCardNonce) {
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                             messageAsDictionary:@{
+                                                                   @"message": @"Credit card nonce is required.",
+                                                                   @"type": @"plugin"
+                                                                   }];
+
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        return;
+    }
+
+    // Save off the Cordova callback ID so it can be used in the completion handlers.
+    __block NSString *threeDSecureVerificationCallbackId = command.callbackId;
+    __block BOOL alreadyVerified = NO;
+
+    BTThreeDSecureDriver *threeDSecureDriver = [[BTThreeDSecureDriver alloc] initWithAPIClient:self.braintreeClient delegate:self];
+
+    [threeDSecureDriver verifyCardWithNonce:creditCardNonce
+                                     amount:[NSDecimalNumber decimalNumberWithString:amount]
+                                 completion:^(BTThreeDSecureCardNonce *card, NSError *error) {
+                                     if (error && !alreadyVerified) {
+                                         alreadyVerified = YES;
+
+                                         [self errorOccurredWithCallbackId:threeDSecureVerificationCallbackId AndError:error];
+                                     } else if (!card && !alreadyVerified) {
+                                         alreadyVerified = YES;
+
+                                         [self userCancelledWithCallbackId:threeDSecureVerificationCallbackId];
+                                     } else if (!alreadyVerified) {
+                                         alreadyVerified = YES;
+
+                                         NSDictionary *dictionary = @{
+                                                                      @"nonce": card.nonce,
+                                                                      @"verificationDetails": @{
+                                                                              @"liabilityShifted": [NSNumber numberWithBool:card.liabilityShifted],
+                                                                              @"liabilityShiftPossible": [NSNumber numberWithBool:card.liabilityShifted]
+                                                                              }
+                                                                      };
+
+                                         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:dictionary];
+
+                                         [self.commandDelegate sendPluginResult:pluginResult callbackId:threeDSecureVerificationCallbackId];
+                                         threeDSecureVerificationCallbackId = nil;
+                                     }
+                                 }];
 }
 
 #pragma mark - PKPaymentAuthorizationViewControllerDelegate
 - (void)paymentAuthorizationViewController:(PKPaymentAuthorizationViewController *)controller didAuthorizePayment:(PKPayment *)payment completion:(void (^)(PKPaymentAuthorizationStatus status))completion {
     applePaySuccess = YES;
-    
+
     BTApplePayClient *applePayClient = [[BTApplePayClient alloc] initWithAPIClient:self.braintreeClient];
     [applePayClient tokenizeApplePayPayment:payment completion:^(BTApplePayCardNonce *tokenizedApplePayPayment, NSError *error) {
         if (tokenizedApplePayPayment) {
             // On success, send nonce to your server for processing.
             NSDictionary *dictionary = [self getPaymentUINonceResult:tokenizedApplePayPayment];
-            
+
             CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                                           messageAsDictionary:dictionary];
-            
+
             [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
             dropInUIcallbackId = nil;
-            
+
             // Then indicate success or failure via the completion callback, e.g.
             completion(PKPaymentAuthorizationStatusSuccess);
         } else {
             // Tokenization failed. Check `error` for the cause of the failure.
-            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Apple Pay tokenization failed"];
-            
+            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                                 messageAsDictionary:@{
+                                                                       @"message": error.localizedDescription,
+                                                                       @"type": @"braintree"
+                                                                       }];
+
             [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
             dropInUIcallbackId = nil;
-            
+
             // Indicate failure via the completion callback:
             completion(PKPaymentAuthorizationStatusFailure);
         }
@@ -278,22 +396,22 @@ NSString *countryCode;
 
 - (void)paymentAuthorizationViewControllerDidFinish:(PKPaymentAuthorizationViewController *)controller {
     UIViewController *rootViewController = [[[UIApplication sharedApplication] keyWindow] rootViewController];
-    
+
     [rootViewController dismissViewControllerAnimated:YES completion:nil];
-    
+
     /* if not success, fire cancel event */
     if (!applePaySuccess) {
         NSDictionary *dictionary = @{ @"userCancelled": @YES };
-        
+
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK  messageAsDictionary:dictionary];
-        
+
         [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
         dropInUIcallbackId = nil;
     }
 }
 
 
-// 3DSecure fix
+// 3DSecure handlers
 - (void)paymentDriver:(id)driver requestsPresentationOfViewController:(UIViewController *)viewController {
     [self.viewController presentViewController:viewController animated:YES completion:nil];
 }
@@ -308,46 +426,46 @@ NSString *countryCode;
  * Handles several different types of nonces (eg for cards, Apple Pay, PayPal, etc).
  */
 - (NSDictionary*)getPaymentUINonceResult:(BTPaymentMethodNonce *)paymentMethodNonce {
-    
+
     BTCardNonce *cardNonce;
     BTPayPalAccountNonce *payPalAccountNonce;
     BTApplePayCardNonce *applePayCardNonce;
     BTThreeDSecureCardNonce *threeDSecureCardNonce;
     BTVenmoAccountNonce *venmoAccountNonce;
-    
+
     if ([paymentMethodNonce isKindOfClass:[BTCardNonce class]]) {
         cardNonce = (BTCardNonce*)paymentMethodNonce;
     }
-    
+
     if ([paymentMethodNonce isKindOfClass:[BTPayPalAccountNonce class]]) {
         payPalAccountNonce = (BTPayPalAccountNonce*)paymentMethodNonce;
     }
-    
+
     if ([paymentMethodNonce isKindOfClass:[BTApplePayCardNonce class]]) {
         applePayCardNonce = (BTApplePayCardNonce*)paymentMethodNonce;
     }
-    
+
     if ([paymentMethodNonce isKindOfClass:[BTThreeDSecureCardNonce class]]) {
         threeDSecureCardNonce = (BTThreeDSecureCardNonce*)paymentMethodNonce;
     }
-    
+
     if ([paymentMethodNonce isKindOfClass:[BTVenmoAccountNonce class]]) {
         venmoAccountNonce = (BTVenmoAccountNonce*)paymentMethodNonce;
     }
-    
+
     NSDictionary *dictionary = @{ @"userCancelled": @NO,
-                                  
+
                                   // Standard Fields
                                   @"nonce": paymentMethodNonce.nonce,
                                   @"type": paymentMethodNonce.type,
                                   @"localizedDescription": paymentMethodNonce.localizedDescription,
-                                  
+
                                   // BTCardNonce Fields
                                   @"card": !cardNonce ? [NSNull null] : @{
                                           @"lastTwo": cardNonce.lastTwo,
                                           @"network": [self formatCardNetwork:cardNonce.cardNetwork]
                                           },
-                                  
+
                                   // BTPayPalAccountNonce
                                   @"payPalAccount": !payPalAccountNonce ? [NSNull null] : @{
                                           @"email": payPalAccountNonce.email,
@@ -359,17 +477,17 @@ NSString *countryCode;
                                           @"clientMetadataId":  (payPalAccountNonce.clientMetadataId == nil ? [NSNull null] : payPalAccountNonce.clientMetadataId),
                                           @"payerId": (payPalAccountNonce.payerId == nil ? [NSNull null] : payPalAccountNonce.payerId),
                                           },
-                                  
+
                                   // BTApplePayCardNonce
                                   @"applePayCard": !applePayCardNonce ? [NSNull null] : @{
                                           },
-                                  
+
                                   // BTThreeDSecureCardNonce Fields
                                   @"threeDSecureCard": !threeDSecureCardNonce ? [NSNull null] : @{
                                           @"liabilityShifted": threeDSecureCardNonce.liabilityShifted ? @YES : @NO,
                                           @"liabilityShiftPossible": threeDSecureCardNonce.liabilityShiftPossible ? @YES : @NO
                                           },
-                                  
+
                                   // BTVenmoAccountNonce Fields
                                   @"venmoAccount": !venmoAccountNonce ? [NSNull null] : @{
                                           @"username": venmoAccountNonce.username
@@ -383,9 +501,9 @@ NSString *countryCode;
  */
 - (NSString*)formatCardNetwork:(BTCardNetwork)cardNetwork {
     NSString *result = nil;
-    
+
     // TODO: This method should probably return the same values as the Android plugin for consistency.
-    
+
     switch (cardNetwork) {
         case BTCardNetworkUnknown:
             result = @"BTCardNetworkUnknown";
@@ -429,7 +547,7 @@ NSString *countryCode;
         default:
             result = nil;
     }
-    
+
     return result;
 }
 

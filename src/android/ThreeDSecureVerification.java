@@ -17,7 +17,6 @@ public class ThreeDSecureVerification extends Activity implements PaymentMethodN
         BraintreeCancelListener, BraintreeErrorListener {
 
     private static final String TAG = "3DSecureVerification";
-
     private boolean firstTime = true;
 
     @Override
@@ -37,7 +36,7 @@ public class ThreeDSecureVerification extends Activity implements PaymentMethodN
                     Log.e(TAG, "Braintree Fragment initialization exception: " + exception.getMessage());
 
                     Intent intent = new Intent();
-                    intent.putExtra("threeDSecureVerificationError", exception.getMessage());
+                    intent.putExtra("error", exception.getMessage());
                     setResult(Activity.RESULT_CANCELED, intent);
 
                     finish();
@@ -48,7 +47,7 @@ public class ThreeDSecureVerification extends Activity implements PaymentMethodN
 
     @Override
     public void onCancel(int requestCode) {
-        Log.w(TAG, "onCancel");
+        Log.w(TAG, "User cancelled");
 
         firstTime = false;
 
@@ -61,7 +60,7 @@ public class ThreeDSecureVerification extends Activity implements PaymentMethodN
 
     @Override
     public void onError(Exception error) {
-        Log.e(TAG, "onError: "+ error.getMessage());
+        Log.e(TAG, "Error: "+ error.getMessage());
 
         firstTime = false;
 
@@ -74,19 +73,14 @@ public class ThreeDSecureVerification extends Activity implements PaymentMethodN
 
     @Override
     public void onPaymentMethodNonceCreated(PaymentMethodNonce paymentMethodNonce) {
-        Log.d(TAG, "onPaymentMethodNonceCreated");
-
         CardNonce cardNonce = (CardNonce) paymentMethodNonce;
-        String threeDSecureNonce = paymentMethodNonce.getNonce();
-        boolean liabilityShifted = cardNonce.getThreeDSecureInfo().isLiabilityShifted();
-        boolean liabilityShiftPossible = cardNonce.getThreeDSecureInfo().isLiabilityShiftPossible();
 
         firstTime = false;
 
         Intent intent = new Intent();
-        intent.putExtra("threeDSecureNonce", threeDSecureNonce);
-        intent.putExtra("liabilityShifted", liabilityShifted);
-        intent.putExtra("liabilityShiftPossible", liabilityShiftPossible);
+        intent.putExtra("threeDSecureNonce", paymentMethodNonce.getNonce());
+        intent.putExtra("liabilityShifted", cardNonce.getThreeDSecureInfo().isLiabilityShifted());
+        intent.putExtra("liabilityShiftPossible", cardNonce.getThreeDSecureInfo().isLiabilityShiftPossible());
         setResult(Activity.RESULT_OK, intent);
 
         finish();
