@@ -319,13 +319,13 @@ public final class BraintreePlugin extends CordovaPlugin {
             dropInUICallbackContext.success(new JSONObject(resultMap));
             dropInUICallbackContext = null;
         } else {
-            String error = ((Exception) intent.getSerializableExtra(DropInActivity.EXTRA_ERROR)).getMessage();
+            String error = (String) intent.getSerializableExtra(DropInActivity.EXTRA_ERROR);
 
             Log.e(TAG, "DropInPayment error: " + error);
 
             Map<String, Object> resultMap = new HashMap<String, Object>();
             resultMap.put("message", error);
-            resultMap.put("type", "braintree");
+            resultMap.put("type", "plugin");
 
             dropInUICallbackContext.error(new JSONObject(resultMap));
             dropInUICallbackContext = null;
