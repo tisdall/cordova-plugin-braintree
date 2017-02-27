@@ -8,8 +8,9 @@ This version of the plugin uses versions `4.7.2` (iOS) and `2.3.12` (Android) of
 
 # Install
 
-Be sure, that xcode npm module is installed:
+Be sure, that plist and xcode npm module is installed:
 ```bash
+    npm install plist
     npm install xcode
 ```
 
@@ -47,9 +48,13 @@ Example Usage:
 var token = "YOUR_TOKEN";
 
 BraintreePlugin.initialize(token,
-    function () { console.log("init OK!"); },
+    function () {
+        console.log("init OK!");
+        ...
+    },
     function (error) { console.error(error); });
 ```
+*Be sure, that you called all Braintree related codes after successCallback is called!* 
 
 ## Show Drop-In Payment UI ##
 
