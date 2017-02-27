@@ -54,7 +54,7 @@ BraintreePlugin.initialize(token,
     },
     function (error) { console.error(error); });
 ```
-*Be sure, that you called all Braintree related codes after successCallback is called!* 
+*As the initialize code is async, be sure you called all Braintree related codes after successCallback is called!* 
 
 ## Show Drop-In Payment UI ##
 
