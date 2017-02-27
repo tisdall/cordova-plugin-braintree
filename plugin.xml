@@ -45,7 +45,9 @@
 
     <!-- iOS Configuration -->
     <platform name="ios">
-	    <hook type="after_plugin_add" src="hooks/add_embedded_ios_frameworks.js" />
+
+	<!-- Hook to embed iOS frameworks -->
+	    <hook type="after_platform_add" src="hooks/add_embedded_ios_frameworks.js" />
 
         <config-file target="config.xml" parent="/*">
             <feature name="BraintreePlugin">
