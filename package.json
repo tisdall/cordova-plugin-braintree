@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/justin-credible/cordova-plugin-braintree"
+    "url": "https://github.com/taracque/cordova-plugin-braintree"
   },
   "keywords": [
     "cordova",
@@ -24,6 +24,5 @@
   "license": "MIT",
   "dependencies": {
     "xcode": "0.9.0",
-    "plist": "2.0.1"
   }
 }

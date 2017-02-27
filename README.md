@@ -8,14 +8,17 @@ This version of the plugin uses versions `4.7.2` (iOS) and `2.3.12` (Android) of
 
 # Install
 
-To add the plugin to your Cordova project, install the latest version of the plugin directly from git:
-
-    cordova plugin add https://github.com/taracque/cordova-plugin-braintree
-    
-be sure, that xcode and plist npm module is installed:
-```
+Be sure, that xcode npm module is installed:
+```bash
     npm install xcode
-    npm install plist
+```
+
+To add the plugin to your Cordova project, first remove the iOS platform, install the latest version of the plugin directly from git, and then re-add iOS platform
+
+```bash
+    cordova platform remove ios
+    cordova plugin add https://github.com/taracque/cordova-plugin-braintree
+    cordova platform add ios
 ```
 
 # Usage
