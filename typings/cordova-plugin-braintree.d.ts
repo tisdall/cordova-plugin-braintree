@@ -1,5 +1,6 @@
 // Type definitions for cordova-plugin-braintree 0.5.1
 // Project: https://github.com/taracque/cordova-plugin-braintree
+// Definitions by: Taracque <https://github.com/taracque>
 // Definitions by: Justin Unterreiner <https://github.com/Justin-Credible>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
 
@@ -19,8 +20,9 @@ declare module BraintreePlugin {
         initialize(token: string, successCallback?: () => void, failureCallback?: (error: string) => void): void;
 
         /**
-         * Shows Braintree's drop-in payment UI.
+         * Used to configure Apple Pay on iOS
          * 
+         * @param options Apple Pay options.
          * @param successCallback The success callback for this asynchronous function; receives a result object.
          * @param failureCallback The failure callback for this asynchronous function; receives an error string.
          */
@@ -29,6 +31,7 @@ declare module BraintreePlugin {
         /**
          * Shows Braintree's drop-in payment UI.
          * 
+         * @param options drop-in UI options.
          * @param successCallback The success callback for this asynchronous function; receives a result object.
          * @param failureCallback The failure callback for this asynchronous function; receives an error string.
          */

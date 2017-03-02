@@ -31,6 +31,13 @@ BraintreePlugin.initialize = function initialize(token, successCallback, failure
     exec(successCallback, failureCallback, PLUGIN_ID, "initialize", [token]);
 };
 
+/**
+ * Used to configure Apple Pay on iOS.
+ * 
+ * @param {object} options - The options used to configure Apple Pay.
+ * @param [function] successCallback - The success callback for this asynchronous function.
+ * @param [function] failureCallback - The failure callback for this asynchronous function; receives an error string.
+ */
 BraintreePlugin.setupApplePay = function setupApplePay(options, successCallback, failureCallback) {
     if (!options) {
         options = {};
