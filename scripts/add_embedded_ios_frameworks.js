@@ -169,10 +169,12 @@ module.exports = function(context) {
 				});
 			}
 		});
-		if (!found) {
-			infoPlist.CFBundleURLTypes.push( {"CFBundleTypeRole":"Editor","CFBundleURLSchemes":["${PRODUCT_BUNDLE_IDENTIFIER}.payments"]} );
-			fs.writeFileSync(projectName + '-Info.plist', plist.build(infoPlist), { encoding : 'utf8'});
-		}
+	} else {
+		infoPlist.CFBundleURLTypes = new Array();
+	}
+	if (!found) {
+		infoPlist.CFBundleURLTypes.push( {"CFBundleTypeRole":"Editor","CFBundleURLSchemes":["${PRODUCT_BUNDLE_IDENTIFIER}.payments"]} );
+		fs.writeFileSync(projectName + '-Info.plist', plist.build(infoPlist), { encoding : 'utf8'});
 	}
 	process.chdir('../../../');
 };
