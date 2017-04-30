@@ -1,9 +1,8 @@
 # Braintree Cordova Plugin
 
 This is a [Cordova](http://cordova.apache.org/) plugin for the [Braintree](https://www.braintreepayments.com/) mobile payment processing SDK.
-Before start using this plugin please read [Braintree documentations](https://developers.braintreepayments.com/)! 
 
-This version of the plugin uses versions `4.7.2` (iOS) and `2.3.12` (Android) of the Braintree mobile SDK. Documentation for the Braintree SDK can be found [here](https://developers.braintreepayments.com/start/overview).
+This version of the plugin uses versions `4.7.2` (iOS) and `2.3.12` (Android) of the Braintree mobile SDK. Documentation for the Braintree SDK can be found [here](https://developers.braintreepayments.com/start/overview). Before start using this plugin please read that documentation.
 
 **This plugin is still in development.**
 
@@ -92,7 +91,8 @@ BraintreePlugin.presentDropInPaymentUI(options, function (result) {
 
 ## Apple Pay (iOS only) ##
 
-To allow ApplePay payment you need to initialize Apple Pay framework before usign the Drop/In Payment UI. Read Braintree docs to setup Merchant account: https://developers.braintreepayments.com/guides/apple-pay/configuration/ios/v4?_ga=1.6058933.767761401.1478959986#apple-pay-certificate-request-and-provisioning
+Do not turn on Apple Pay in Braintree if you don't have Apple Pay entitlements.
+To allow ApplePay payment you need to initialize Apple Pay framework before usign the Drop/In Payment UI. Read Braintree docs to setup Merchant account: https://developers.braintreepayments.com/guides/apple-pay/configuration/ios/v4#apple-pay-certificate-request-and-provisioning
 
 Method Signature:
 `setupApplePay(options)`
