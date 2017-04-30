@@ -1,6 +1,7 @@
 # Braintree Cordova Plugin
 
 This is a [Cordova](http://cordova.apache.org/) plugin for the [Braintree](https://www.braintreepayments.com/) mobile payment processing SDK.
+Before start using this plugin please read [Braintree documentations](https://developers.braintreepayments.com/)! 
 
 This version of the plugin uses versions `4.7.2` (iOS) and `2.3.12` (Android) of the Braintree mobile SDK. Documentation for the Braintree SDK can be found [here](https://developers.braintreepayments.com/start/overview).
 
