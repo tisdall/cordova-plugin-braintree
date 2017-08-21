@@ -5,25 +5,6 @@
 #import <BraintreeCore/BraintreeCore.h>
 #endif
 
-/*!
- @brief Card type
-*/
-typedef NS_ENUM(NSInteger, BTCardNetwork) {
-    BTCardNetworkUnknown = 0,
-    BTCardNetworkAMEX,
-    BTCardNetworkDinersClub,
-    BTCardNetworkDiscover,
-    BTCardNetworkMasterCard,
-    BTCardNetworkVisa,
-    BTCardNetworkJCB,
-    BTCardNetworkLaser,
-    BTCardNetworkMaestro,
-    BTCardNetworkUnionPay,
-    BTCardNetworkSolo,
-    BTCardNetworkSwitch,
-    BTCardNetworkUKMaestro,
-};
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface BTCardNonce : BTPaymentMethodNonce
@@ -37,6 +18,11 @@ NS_ASSUME_NONNULL_BEGIN
  @brief The last two digits of the card, if available.
 */
 @property (nonatomic, nullable, readonly, copy) NSString *lastTwo;
+
+/*!
+ @brief The BIN data for the card number associated with this nonce.
+ */
+@property (nonatomic, readonly, strong) BTBinData *binData;
 
 #pragma mark - Internal
 

@@ -1,5 +1,3 @@
-#pragma message "⚠️ BraintreeDropIn is currently in beta and may change."
-
 #import <UIKit/UIKit.h>
 #import "BTDropInBaseViewController.h"
 #import "BTDropInResult.h"
@@ -39,6 +37,12 @@ typedef void (^BTDropInControllerHandler)(BTDropInController * _Nonnull controll
 ///
 /// @param sender The sender requesting the view be changed.
 - (void)showCardForm:(id)sender;
+
+@end
+
+@protocol BTDropInControllerDelegate <NSObject>
+
+- (void)reloadDropInData;
 
 @end
 
