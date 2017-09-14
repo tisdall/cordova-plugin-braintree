@@ -181,7 +181,7 @@ NSString *countryCode;
                     
                     apPaymentRequest.merchantIdentifier = applePayMerchantID;
                     
-                    if(PKPaymentAuthorizationViewController.canMakePayments()) {
+                    if(PKPaymentAuthorizationViewController.canMakePayments) {
                         PKPaymentAuthorizationViewController *viewController = [[PKPaymentAuthorizationViewController alloc] initWithPaymentRequest:apPaymentRequest];
                         viewController.delegate = self;
                     
@@ -192,7 +192,7 @@ NSString *countryCode;
                     
                         [rootViewController presentViewController:viewController animated:YES completion:nil];
                     } else {
-                        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"ApplePay error."];
+                        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"ApplePay cannot be used."];
                         
                         [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
                         dropInUIcallbackId = nil;
