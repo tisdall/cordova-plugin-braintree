@@ -106,12 +106,20 @@ NSString *countryCode;
         [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
         return;
     }
-    
-    applePayMerchantID = [command.arguments objectAtIndex:0];
-    currencyCode = [command.arguments objectAtIndex:1];
-    countryCode = [command.arguments objectAtIndex:2];
-    
-    applePayInited = YES;
+
+	if ((PKPaymentAuthorizationViewController.canMakePayments) && ([PKPaymentAuthorizationViewController canMakePaymentsUsingNetworks:@[PKPaymentNetworkVisa, PKPaymentNetworkMasterCard, PKPaymentNetworkAmex, PKPaymentNetworkDiscover]])) {
+		applePayMerchantID = [command.arguments objectAtIndex:0];
+		currencyCode = [command.arguments objectAtIndex:1];
+		countryCode = [command.arguments objectAtIndex:2];
+	
+		applePayInited = YES;
+
+	    CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+	    [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+    } else {
+	    CDVPluginResult *res = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"ApplePay cannot be used."];
+	    [self.commandDelegate sendPluginResult:res callbackId:command.callbackId];
+    }
 }
 
 - (void)presentDropInPaymentUI:(CDVInvokedUrlCommand *)command {
@@ -181,7 +189,7 @@ NSString *countryCode;
                     
                     apPaymentRequest.merchantIdentifier = applePayMerchantID;
                     
-                    if(PKPaymentAuthorizationViewController.canMakePayments) {
+                    if ((PKPaymentAuthorizationViewController.canMakePayments) && ([PKPaymentAuthorizationViewController canMakePaymentsUsingNetworks:apPaymentRequest.supportedNetworks])) {
                         PKPaymentAuthorizationViewController *viewController = [[PKPaymentAuthorizationViewController alloc] initWithPaymentRequest:apPaymentRequest];
                         viewController.delegate = self;
                     
