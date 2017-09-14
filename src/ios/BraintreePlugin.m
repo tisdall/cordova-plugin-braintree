@@ -181,16 +181,22 @@ NSString *countryCode;
                     
                     apPaymentRequest.merchantIdentifier = applePayMerchantID;
                     
-                    PKPaymentAuthorizationViewController *viewController = [[PKPaymentAuthorizationViewController alloc] initWithPaymentRequest:apPaymentRequest];
-                    viewController.delegate = self;
+                    if(PKPaymentAuthorizationViewController.canMakePayments()) {
+                        PKPaymentAuthorizationViewController *viewController = [[PKPaymentAuthorizationViewController alloc] initWithPaymentRequest:apPaymentRequest];
+                        viewController.delegate = self;
                     
-                    applePaySuccess = NO;
+                        applePaySuccess = NO;
                     
-                    /* display ApplePay ont the rootViewController */
-                    UIViewController *rootViewController = [[[UIApplication sharedApplication] keyWindow] rootViewController];
+                        /* display ApplePay ont the rootViewController */
+                        UIViewController *rootViewController = [[[UIApplication sharedApplication] keyWindow] rootViewController];
                     
-                    [rootViewController presentViewController:viewController animated:YES completion:nil];
-                    
+                        [rootViewController presentViewController:viewController animated:YES completion:nil];
+                    } else {
+                        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"ApplePay error."];
+                        
+                        [self.commandDelegate sendPluginResult:pluginResult callbackId:dropInUIcallbackId];
+                        dropInUIcallbackId = nil;
+                    }
                 } else {
                     NSDictionary *dictionary = [self getPaymentUINonceResult:result.paymentMethod];
                     
